@@ -5,7 +5,7 @@
 [![Latest release](https://img.shields.io/github/release/runcobo/runcobo.svg?style=flat-square)](https://github.com/runcobo/runcobo/releases)
 [![API docs](https://img.shields.io/badge/api_docs-online-brightgreen.svg?style=flat-square)](https://runcobo.github.io/runcobo/)
 
-Runcobo is an api framework in Crystal.
+Runcobo is an api framework in Crystal. It is in develop now, please don't try.
 
 ## Philosophy
 * **Simple**      Design must be simple, both in implementation and interface.
@@ -31,6 +31,8 @@ This shard follows Semantic Versioning v2.0.0, so check releases and change the 
 ## Usage
 
 ```crystal
+# It don't work now. Please don't try.
+
 require "runcobo"
 
 class Api::V1::Add < BaseAction
