@@ -3,6 +3,7 @@
 [![Travis CI build](https://img.shields.io/travis/runcobo/runcobo/master.svg?style=flat-square)](https://travis-ci.org/runcobo/runcobo)
 [![Built with Crystal](https://img.shields.io/badge/built%20with-crystal-000000.svg?style=flat-square)](https://crystal-lang.org/)
 [![Latest release](https://img.shields.io/github/release/runcobo/runcobo.svg?style=flat-square)](https://github.com/runcobo/runcobo/releases)
+[![API docs](https://img.shields.io/badge/api_docs-online-brightgreen.svg?style=flat-square)](https://runcobo.github.io/runcobo/)
 
 Runcobo is an api framework in Crystal.
 
