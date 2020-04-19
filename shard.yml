@@ -1,0 +1,18 @@
+name: runcobo
+version: 0.1.0
+
+authors:
+  - Shootingfly
+
+crystal: 0.34.0
+
+license: MIT
+
+dependencies:
+  jbuilder:
+    github: shootingfly/jbuilder
+  radix:
+    github: luislavena/radix
+  teeplate:
+    github: mosop/teeplate
+    version: ~> 0.8.0

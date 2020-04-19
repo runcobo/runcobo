@@ -1,0 +1,14 @@
+/docs/
+/lib/
+/bin/
+/.shards/
+*.dwarf
+/spec/dummy/lib/
+/.vscode/
+.DS_Store
+/tmp/
+package-lock.json
+/node_modules/
+# Libraries don't need dependency lock
+# Dependencies will be locked in applications that use them
+/shard.lock
