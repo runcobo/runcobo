@@ -23,7 +23,7 @@ module Runcobo
       # end
       # ```
       def self.add_route(method : String, url : String) : Nil
-        Tree.add("/#{method.upcase}#{url}", self)
+        Tree.add("#{method.upcase}#{url}", self)
         @@routes << Route.new(method.upcase, url, self.name)
       end
 
