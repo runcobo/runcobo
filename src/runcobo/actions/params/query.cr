@@ -14,16 +14,16 @@ module Runcobo
   # ```
   module Params::Query
     macro query(code)
-      def query
-        params = HTTP::Params.parse(request.query || "")
+      def query_params
+        _params = HTTP::Params.parse(request.query || "")
         NamedTuple.new(
           {% for key, value in code.named_args %}
             {% if value.stringify.starts_with?("Array") %}
-              {{key.stringify}}: {{value}}.from_http_param(params.fetch_all({{key.stringify}})),
+              {{key.stringify}}: {{value}}.from_http_param(_params.fetch_all({{key.stringify}})),
             {% elsif value.stringify.includes?("Nil") %}
-              {{key.stringify}}: {{value.types[0]}}.from_http_param(params[{{key.stringify}}]?),
+              {{key.stringify}}: {{value.types[0]}}.from_http_param(_params[{{key.stringify}}]?),
             {% else %}
-              {{key.stringify}}: {{value}}.from_http_param(params[{{key.stringify}}]),
+              {{key.stringify}}: {{value}}.from_http_param(_params[{{key.stringify}}]),
             {% end %}
           {% end %}
         )

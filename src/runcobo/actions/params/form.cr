@@ -14,16 +14,16 @@ module Runcobo
   # ```
   module Params::Form
     macro form(code)
-      def form
-        params = HTTP::Params.parse(@raw_body || "")
+      def form_params
+        _params = HTTP::Params.parse(@raw_body || "")
         NamedTuple.new(
           {% for key, value in code.named_args %}
             {% if value.stringify.starts_with?("Array") %}
-              {{key.id}}: {{value}}.from_http_param(params.fetch_all({{key.stringify}})),
+              {{key.id}}: {{value}}.from_http_param(_params.fetch_all({{key.stringify}})),
             {% elsif value.stringify.includes?("Nil") %}
-              {{key.id}}: {{value.types[0]}}.from_http_param(params[{{key.stringify}}]?),
+              {{key.id}}: {{value.types[0]}}.from_http_param(_params[{{key.stringify}}]?),
             {% else %}
-              {{key.id}}: {{value}}.from_http_param(params[{{key.stringify}}]),
+              {{key.id}}: {{value}}.from_http_param(_params[{{key.stringify}}]),
             {% end %}
           {% end %}
         )

@@ -3,7 +3,7 @@ class Actions::Params::Form < BaseAction
   form NamedTuple(id: Bool?)
 
   call do
-    puts form[:id].class
+    puts params[:id].class
     render_plain "Hello World!"
   end
 end

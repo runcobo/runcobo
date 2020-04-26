@@ -9,11 +9,11 @@ class Actions::Params::Query < BaseAction
   )
 
   call do
-    puts query[:id]
-    puts query[:page] + 1
-    puts query[:foo]
-    puts query["foo"]
-    puts query["q[name_eq]"]
+    puts params[:id]
+    puts params[:page] + 1
+    puts params[:foo]
+    puts params["foo"]
+    puts params["q[name_eq]"]
     render_plain "Hello World!"
   end
 end

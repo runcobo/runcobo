@@ -21,7 +21,7 @@ module Runcobo
   # ```
   module Params::Json
     macro json(code)
-      def json
+      def json_params
         {{code}}.not_nil!.from_json(@raw_body.not_nil!)
       end
     end

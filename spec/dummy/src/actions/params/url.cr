@@ -3,8 +3,8 @@ class Actions::Params::Url < BaseAction
   url NamedTuple(id: Int32, category: String)
 
   call do
-    puts url[:id]
-    puts url[:category]
+    puts params[:id]
+    puts params[:category]
     render_plain "Hello World!"
   end
 end

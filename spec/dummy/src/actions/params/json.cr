@@ -14,8 +14,8 @@ class Actions::Params::Json < BaseAction
   property users : Array(User) = [] of User
   call do
     users << User.new(
-      code: json[:user][:code],
-      name: json[:user][:name]
+      code: params[:user][:code],
+      name: params[:user][:name]
     )
     render_jbuilder "users/index", layout: "runcobo"
   end

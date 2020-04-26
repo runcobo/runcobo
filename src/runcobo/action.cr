@@ -30,6 +30,26 @@ module Runcobo
       end
     end
 
+    def params
+      {__action: self.class.name}.merge(query_params).merge(form_params).merge(json_params).merge(url_params)
+    end
+
+    def query_params
+      NamedTuple.new
+    end
+
+    def url_params
+      NamedTuple.new
+    end
+
+    def form_params
+      NamedTuple.new
+    end
+
+    def json_params
+      NamedTuple.new
+    end
+
     macro call(&body)
       def call
         %pipe_result = call_before_actions
