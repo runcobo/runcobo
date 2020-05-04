@@ -1,6 +1,6 @@
-struct Int32
+class String
   def self.from_http_param(value : String)
-    value.to_i
+    value
   end
 
   def self.from_http_param(value : Nil)
