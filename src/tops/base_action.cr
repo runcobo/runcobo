@@ -1,3 +1,5 @@
+require "../runcobo/action"
+
 # All Actions should be inherited from `BaseAction`.
 #
 # ```

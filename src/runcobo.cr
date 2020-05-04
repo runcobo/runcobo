@@ -1,6 +1,6 @@
 require "logger"
 require "jbuilder"
-# require "./runcobo/extensions/core"
+require "./tops/**"
 require "./runcobo/**"
 require "./commands/**"
 require "radix"
