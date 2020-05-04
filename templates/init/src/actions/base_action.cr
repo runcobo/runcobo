@@ -4,6 +4,6 @@ abstract class BaseAction < Runcobo::Action
   before do_something_before_action
 
   def do_something_before_action
-    Log.info "Hi! Welcome to Runcobo"
+    Runcobo::Log.info { "Hi! Welcome to Runcobo" }
   end
 end

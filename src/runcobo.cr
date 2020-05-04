@@ -1,11 +1,8 @@
-require "logger"
 require "jbuilder"
 require "./tops/**"
 require "./runcobo/**"
 require "./commands/**"
 require "radix"
-
-Log = Runcobo::Logger.new(STDOUT)
 
 module Runcobo
   # Starts Runcobo App with default host "0.0.0.0" and default port "3000".

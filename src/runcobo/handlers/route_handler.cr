@@ -9,7 +9,7 @@ module Runcobo
       result = Runcobo::Action::TREE.find(url)
       if result.found?
         context.request.route_params = result.params
-        Log.info("#{context.request.method} #{context.request.resource}")
+        Runcobo::Log.info { "#{context.request.method} #{context.request.resource}" }
         result.payload.new(context).call
       else
         call_next(context)

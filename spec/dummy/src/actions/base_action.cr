@@ -5,10 +5,9 @@ abstract class BaseAction
 
   def set_current_user
     if rand(Int8).odd?
-      Log.info "It is odd"
-      # byebye
+      Runcobo::Log.info { "It is odd" }
     else
-      Log.info "It is even"
+      Runcobo::Log.info { "It is even" }
     end
   end
 end
