@@ -9,6 +9,10 @@ require "./actions/params/url"
 module Runcobo
   abstract class Action
     LAYOUT = nil : String?
+    # Radix Tree for classes inheriated from `BaseAction`
+    TREE = ::Radix::Tree(self.class).new
+    # Route table
+    ROUTES = [] of Runcobo::Route
     extend Runcobo::Router
     include Runcobo::Render
     include Runcobo::Pipe

@@ -2,12 +2,8 @@ require "../runcobo"
 
 module Runcobo
   module Commands::RouteTables
-    def self.routes
-      {{ BaseAction.all_subclasses }}.map(&.routes).flatten
-    end
-
     def self.execute
-      current_routes = routes
+      current_routes = Runcobo::Action::ROUTES
       max_action_size = current_routes.max_by { |x| x.action.size }.action.size
       current_routes.each do |route|
         padding = " " * (max_action_size - route.action.size)

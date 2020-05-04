@@ -2,71 +2,63 @@ require "../structs/route"
 
 module Runcobo
   module Router
-    macro extended
-      # Radix Tree for classes inheriated from `BaseAction`
-      Tree = ::Radix::Tree(self.class).new
+    # Binds a route to current klass with method and url.
+    # Uses `.get`,`.post`, `.delete`, `.put`, `.patch`, `.options`, `.head` instead.
+    # Uses this method only when you want to add custom method, like "LINK", "UNLINK", "FIND", "PURGE" and etc.
+    #
+    # ```
+    # class AddRouteExample < BaseAction
+    #   route "LINK", "/example"
+    #
+    #   call do
+    #     render_plain "Hello World!"
+    #   end
+    # end
+    # ```
+    def route(method : String, url : String)
+      raise "URL must start with /" unless url.starts_with?("/")
+      add_route(method, url, self)
+    end
 
-      # Route table
-      @@routes : Array(Runcobo::Route) = [] of Runcobo::Route
+    # Adds GET URL to route table.
+    # You can bind more than one route to one class.
+    def get(url : String) : Nil
+      route("GET", url)
+    end
 
-      # Binds a route to current klass with method and url.
-      # Uses `.get`,`.post`, `.delete`, `.put`, `.patch`, `.options`, `.head` instead.
-      # Uses this method only when you want to add custom method, like "LINK", "UNLINK", "FIND", "PURGE" and etc.
-      #
-      # ```
-      # class AddRouteExample < BaseAction
-      #   add_route "LINK", "/example"
-      #
-      #   call do
-      #     render_plain "Hello World!"
-      #   end
-      # end
-      # ```
-      def self.add_route(method : String, url : String) : Nil
-        Tree.add("#{method.upcase}#{url}", self)
-        @@routes << Route.new(method.upcase, url, self.name)
-      end
+    # Adds POST URL to route table.
+    def post(url : String) : Nil
+      route("POST", url)
+    end
 
-      # Reads route table.
-      def self.routes : Array(Runcobo::Route)
-        @@routes
-      end
+    # Adds PUT URL to route table.
+    def put(url : String) : Nil
+      route("PUT", url)
+    end
 
-      # Adds GET URL to route table.
-      # You can bind more than one route to one class.
-      def self.get(url : String) : Nil
-        add_route("GET", url)
-      end
+    # Adds DELETE URL to route table.
+    def delete(url : String) : Nil
+      route("DELETE", url)
+    end
 
-      # Adds POST URL to route table.
-      def self.post(url : String) : Nil
-        add_route("POST", url)
-      end
+    # Adds PATCH URL to route table.
+    def patch(url : String) : Nil
+      route("PATCH", url)
+    end
 
-      # Adds PUT URL to route table.
-      def self.put(url : String) : Nil
-        add_route("PUT", url)
-      end
+    # Adds OPTIONS URL to route table.
+    def options(url : String) : Nil
+      route("OPTIONS", url)
+    end
 
-      # Adds DELETE URL to route table.
-      def self.delete(url : String) : Nil
-        add_route("DELETE", url)
-      end
+    # Adds HEAD URL to route table.
+    def head(url : String) : Nil
+      route("HEAD", url)
+    end
 
-      # Adds PATCH URL to route table.
-      def self.patch(url : String) : Nil
-        add_route("PATCH", url)
-      end
-
-      # Adds OPTIONS URL to route table.
-      def self.options(url : String) : Nil
-        add_route("OPTIONS", url)
-      end
-
-      # Adds HEAD URL to route table.
-      def self.head(url : String) : Nil
-        add_route("HEAD", url)
-      end
+    private def add_route(method : String, url : String, klass : Runcobo::Action.class) : Nil
+      Runcobo::Action::TREE.add("/#{method.upcase}#{url}", klass)
+      Runcobo::Action::ROUTES << Route.new(method.upcase, url, klass.name)
     end
   end
 end

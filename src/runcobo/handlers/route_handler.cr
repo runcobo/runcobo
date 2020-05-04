@@ -5,8 +5,8 @@ module Runcobo
     include HTTP::Handler
 
     def call(context)
-      url = context.request.method + context.request.path
-      result = Runcobo::Action::Tree.find(url)
+      url = "/#{context.request.method}#{context.request.path}"
+      result = Runcobo::Action::TREE.find(url)
       if result.found?
         context.request.route_params = result.params
         Log.info("#{context.request.method} #{context.request.resource}")
