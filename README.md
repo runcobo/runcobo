@@ -5,7 +5,7 @@
 [![Latest release](https://img.shields.io/github/release/runcobo/runcobo.svg?style=flat-square)](https://github.com/runcobo/runcobo/releases)
 [![API docs](https://img.shields.io/badge/api_docs-online-brightgreen.svg?style=flat-square)](https://runcobo.github.io/runcobo/)
 
-Runcobo is an api framework in Crystal. It is in develop now, please don't try.
+Runcobo is an api framework in Crystal.
 
 ## Philosophy
 * **Simple**      Design must be simple, both in implementation and interface.
@@ -31,8 +31,6 @@ This shard follows Semantic Versioning v2.0.0, so check releases and change the 
 ## Usage
 
 ```crystal
-# It don't work now. Please don't try.
-
 require "runcobo"
 
 class Api::V1::Add < BaseAction
@@ -40,9 +38,8 @@ class Api::V1::Add < BaseAction
   query NamedTuple(a: Int32, b: Int32)
 
   call do
-    sum = query[:a] + query[:b]
-    text = "Hello, World! #{query[:a]} + #{query[:b]} = #{sum}"
-    render_plain text
+    sum = params[:a] + params[:b]
+    render_plain sum.to_s
   end
 end
 
@@ -61,42 +58,42 @@ class BaseAction
   def self.delete(url : String)
   def self.options(url : String)
   def self.head(url : String)
+  def self.route(method : String, url : String)
 
   # Params Definition
-  def self.url(named_tuple : NamedTuple.class)
-  def self.query(named_tuple : NamedTuple.class)
-  def self.form(named_tuple : NamedTuple.class)
-  def self.json(named_tuple : NamedTuple.class)
+  macro url(named_tuple : NamedTuple.class)
+  macro query(named_tuple : NamedTuple.class)
+  macro form(named_tuple : NamedTuple.class)
+  macro json(named_tuple : NamedTuple.class)
 
   # Params Call
-  def url
-  def query
-  def form
-  def json
+  def params : NamedTuple
 
   # Call
-  def self.call(&block) : HTTP::Server::Context
-  def self.layout(filename : String)
-  def self.before(method_name : Crystal::Macros::MacroId)
-  def self.after(method_name : Crystal::Macros::MacroId)
-  def self.skip(method_name : Crystal::Macros::MacroId)
+  macro call(&block) : HTTP::Server::Context
+  macro layout(filename : String)
+  macro before(method_name : Crystal::Macros::MacroId)
+  macro after(method_name : Crystal::Macros::MacroId)
+  macro skip(method_name : Crystal::Macros::MacroId)
 
   # Render View
   def render_plain(text : String, *, statu_code :Int32 = 200) : HTTP::Server::Context
   def render_body(body : String, *, statu_code : Int32 = 200) : HTTP::Server::Context
-  def render_jbuilder(filename : String, *, layout : String? = nil, status_code = Int32) : HTTP::Server::Context
+  macro render_jbuilder(filename : String, *, layout : String? = nil, status_code = Int32, dir = true) : HTTP::Server::Context
 end
 
 module Runcobo
-  # Start
-  def self.start(*, host : String? = ENV["HOST"]? || "0.0.0.0", port : Int32 = (ENV["PORT"]? || 3000).to_i)
+  # Start Server
+  def self.start(*,
+                 host : String = ENV["HOST"]? || "0.0.0.0",
+                 port : Int32 = (ENV["PORT"]? || 3000).to_i,
+                 reuse_port : Bool = false,
+                 handlers : Array(HTTP::Handler) = Runcobo::Server.default_handlers,
+                 cert : String? = ENV["CERT"]?,
+                 key : String? = ENV["KEY"]?)
 end
 
 ```
-
-## Development
-
-WIP
 
 ## Contributing
 
