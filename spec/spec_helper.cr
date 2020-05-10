@@ -1,5 +1,5 @@
 require "spec"
-require "../src/runcobo"
+require "../src/runcobo.cr"
 
 def run_server
   server = Runcobo::Server.new

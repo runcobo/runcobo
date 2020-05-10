@@ -1,3 +1,4 @@
+require "radix"
 require "./actions/router"
 require "./actions/render"
 require "./actions/pipe"

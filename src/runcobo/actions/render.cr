@@ -33,13 +33,22 @@ module Runcobo
     #   end
     # end
     # ```
-    macro render_jbuilder(filename, *, layout = nil, status_code = 200)
+    macro render_jbuilder(filename, *, layout = nil, status_code = 200, dir = true)
       @context.response.content_type = "application/json"
       @context.response.status_code = {{ status_code }}
-      {% if layout = layout || LAYOUT %}
-        Jbuilder.embed("src/views/{{filename.id}}.jbuilder", @context.response.output, "src/views/layouts/{{layout.id}}.jbuilder")
+      {% real_layout = layout || LAYOUT %}
+      {% if dir %}
+        {% if !real_layout.id %}
+          Jbuilder.embed("src/views/{{filename.id}}.jbuilder", @context.response.output, "src/views/layouts/{{real_layout.id}}.jbuilder")
+        {% else %}
+          Jbuilder.embed("src/views/{{filename.id}}.jbuilder", @context.response.output)
+        {% end %}
       {% else %}
-        Jbuilder.embed("src/views/{{filename.id}}.jbuilder", @context.response.output)
+        {% if !real_layout.id %}
+          Jbuilder.embed("{{filename.id}}.jbuilder", @context.response.output, "{{real_layout.id}}.jbuilder")
+        {% else %}
+          Jbuilder.embed("{{filename.id}}.jbuilder", @context.response.output)
+        {% end %}
       {% end %}
       @context
     end

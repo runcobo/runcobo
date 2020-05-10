@@ -7,7 +7,7 @@ module Runcobo
     ROUTES = <<-END
       require "./src/runcobo"
       require "./src/actions/**"
-      Runcobo::Commands::RouteTables.execute
+      Runcobo::Commands::RouteTables.generate_route_tables.each { |x| puts x }
       END
 
     # Runs path
