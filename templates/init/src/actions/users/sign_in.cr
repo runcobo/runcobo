@@ -6,7 +6,7 @@ class Users::SignIn < BaseAction
   )
   property user : User
   call do
-    user = User.new(email: json[:email], password: json[:password])
+    user = User.new(email: params[:email], password: params[:password])
     render_jbuilder "users/sign_in"
   end
 end

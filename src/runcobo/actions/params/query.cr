@@ -7,7 +7,7 @@ module Runcobo
   #   query NamedTuple(id: Int64, category: String)
   #
   #   call do
-  #     sum = query[:id] + 6
+  #     sum = params[:id] + 6
   #     render_plain "#{sum}: #{category}"
   #   end
   # end

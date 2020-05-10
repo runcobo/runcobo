@@ -7,7 +7,7 @@ module Runcobo
   #   url NamedTuple(id: Int64, category: String)
   #
   #   call do
-  #     sum = url[:id] + 6
+  #     sum = params[:id] + 6
   #     render_plain "#{sum}: #{category}"
   #   end
   # end

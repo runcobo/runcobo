@@ -14,7 +14,7 @@ module Runcobo
   #   )
   #
   #   call do
-  #     sum = json[:user][:gender] + 6
+  #     sum = params[:user][:gender] + 6
   #     render_plain "#{sum}: #{category}"
   #   end
   # end
