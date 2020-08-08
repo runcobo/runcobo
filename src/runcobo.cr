@@ -1,4 +1,5 @@
 require "jbuilder"
+require "water"
 require "./tops/**"
 require "./runcobo/**"
 require "./commands/**"
@@ -29,7 +30,7 @@ module Runcobo
   def self.start(*,
                  host : String = ENV["HOST"]? || "0.0.0.0",
                  port : Int32 = (ENV["PORT"]? || 3000).to_i,
-                 reuse_port : Bool = false,
+                 reuse_port : Bool = !!(ENV["REUSE_PORT"]? || false),
                  handlers : Array(HTTP::Handler) = Runcobo::Server.default_handlers,
                  cert : String? = ENV["CERT"]?,
                  key : String? = ENV["KEY"]?)
@@ -41,5 +42,16 @@ module Runcobo
     server.cert = cert
     server.key = key
     server.listen
+  end
+
+  # Pretty prints envs which can be used in Runcobo.
+  def self.pretty_print_envs
+    pp({
+      HOST:       "(String) The host app listen on",
+      PORT:       "(Int32)  The port app listen on",
+      REUSE_PORT: "(Bool)   Whether reuse port",
+      CERT:       "(String) Cert for https",
+      KEY:        "(String) Key for https",
+    })
   end
 end

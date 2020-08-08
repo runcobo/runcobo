@@ -16,3 +16,5 @@ dependencies:
   teeplate:
     github: mosop/teeplate
     version: ~> 0.8.0
+  water:
+    github: shootingfly/water

@@ -79,7 +79,8 @@ class BaseAction
   # Render View
   def render_plain(text : String, *, statu_code :Int32 = 200) : HTTP::Server::Context
   def render_body(body : String, *, statu_code : Int32 = 200) : HTTP::Server::Context
-  macro render_jbuilder(filename : String, *, layout : String? = nil, status_code = Int32, dir = true) : HTTP::Server::Context
+  macro render_water(filename : String, *, layout = "", status_code = Int32, dir = "src/views/", layout_dir = "src/views/layouts/") : HTTP::Server::Context
+  macro render_jbuilder(filename : String, *, layout = "", status_code = Int32, dir = "src/views/", layout_dir = "src/views/layouts/") : HTTP::Server::Context
 end
 
 module Runcobo

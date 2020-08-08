@@ -1,4 +1,5 @@
 require "jbuilder"
+require "water"
 
 module Runcobo
   module Render
@@ -20,6 +21,36 @@ module Runcobo
       LAYOUT = {{ filename }}
     end
 
+    # Renders Water with "text/html" Content-Type.
+    #
+    # Option `layout`, the layout default to nil
+    # Option `status_code`, rewrite status code for response, default to 200
+    # Option `dir`, rewrite dir of file, default to "src/views/"
+    # Option `layout_dir`, rewrite dir of layout, default to "src/views/layouts/"
+    #
+    # `src/views/layouts/application.water` must be present.
+    # `src/views/renders/example.water` must be present.
+    # ```
+    # class RenderWater < BaseAction
+    #   layout "application"
+    #
+    #   call do
+    #     render_water "renders/example", status_code: 200
+    #   end
+    # end
+    # ```
+    macro render_water(filename, *, layout = "", status_code = 200, dir = "src/views/", layout_dir = "src/views/layouts/")
+      @context.response.content_type = "text/html"
+      @context.response.status_code = {{ status_code }}
+      {% layout_file = layout == "" ? LAYOUT : layout %}
+      {% if layout_file == "" %}
+        Water.embed("{{dir.id}}{{filename.id}}.water", @context.response.output)
+      {% else %}
+        Water.embed("{{dir.id}}{{filename.id}}.water", @context.response.output, "{{layout_dir.id}}{{layout_file.id}}.water")
+      {% end %}
+      @context
+    end
+
     # Renders Jbuilder with "application/json" Content-Type.
     #
     # `src/views/layouts/application.jbuilder` must be present.
@@ -33,22 +64,14 @@ module Runcobo
     #   end
     # end
     # ```
-    macro render_jbuilder(filename, *, layout = nil, status_code = 200, dir = true)
+    macro render_jbuilder(filename, *, layout = "", status_code = 200, dir = "src/views/", layout_dir = "src/views/layouts/")
       @context.response.content_type = "application/json"
       @context.response.status_code = {{ status_code }}
-      {% real_layout = layout || LAYOUT %}
-      {% if dir %}
-        {% if !real_layout.id %}
-          Jbuilder.embed("src/views/{{filename.id}}.jbuilder", @context.response.output, "src/views/layouts/{{real_layout.id}}.jbuilder")
-        {% else %}
-          Jbuilder.embed("src/views/{{filename.id}}.jbuilder", @context.response.output)
-        {% end %}
+      {% layout_file = layout == "" ? LAYOUT : layout %}
+      {% if layout_file == "" %}
+        Jbuilder.embed("{{dir.id}}{{filename.id}}.jbuilder", @context.response.output)
       {% else %}
-        {% if !real_layout.id %}
-          Jbuilder.embed("{{filename.id}}.jbuilder", @context.response.output, "{{real_layout.id}}.jbuilder")
-        {% else %}
-          Jbuilder.embed("{{filename.id}}.jbuilder", @context.response.output)
-        {% end %}
+        Jbuilder.embed("{{dir.id}}{{filename.id}}.jbuilder", @context.response.output, "{{layout_dir.id}}{{layout_file.id}}.jbuilder")
       {% end %}
       @context
     end

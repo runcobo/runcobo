@@ -9,7 +9,7 @@ require "./actions/params/url"
 
 module Runcobo
   abstract class Action
-    LAYOUT = nil : String?
+    LAYOUT = ""
     # Radix Tree for classes inheriated from `BaseAction`
     TREE = ::Radix::Tree(self.class).new
     # Route table
@@ -35,7 +35,7 @@ module Runcobo
       end
     end
 
-    def params
+    def parse_params
       {__action: self.class.name}.merge(query_params).merge(form_params).merge(json_params).merge(url_params)
     end
 
@@ -57,6 +57,7 @@ module Runcobo
 
     macro call(&body)
       def call
+        params = parse_params
         %pipe_result = call_before_actions
         if %pipe_result.is_a?(Runcobo::Pipe::Byebye)
           %context = @context

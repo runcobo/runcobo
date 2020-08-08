@@ -1,0 +1,5 @@
+Water.new do
+  div {
+    yield_content
+  }
+end
