@@ -9,7 +9,6 @@ module Runcobo
         runcobo [<commands>...] [<arguments>...]
 
         Commands:
-          init [<project_name>]       - Initialize a runcobo project.
           routes                      - Print all routes of the app.
           version                     - Print the current version of the runcobo.
           help                        - Print usage synopsis.
@@ -32,15 +31,6 @@ module Runcobo
         opts.on("-v", "--version", "Print the current version of the runcobo.") { self.display_version_and_exit }
         opts.unknown_args do |args, options|
           case args[0]?
-          when "init"
-            if args[1]?
-              project_name = args[1]
-              Runcobo::Commands::Init.run(path, project_name)
-            else
-              puts "[Error]Missing project_name"
-              puts "init [<project_name>]       - Initialize a runcobo project."
-              exit 1
-            end
           when "routes"
             Runcobo::Commands::Routes.run(path)
           when "version"

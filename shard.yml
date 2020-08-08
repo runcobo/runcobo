@@ -13,8 +13,5 @@ dependencies:
     github: shootingfly/jbuilder
   radix:
     github: luislavena/radix
-  teeplate:
-    github: mosop/teeplate
-    version: ~> 0.8.0
   water:
     github: shootingfly/water
