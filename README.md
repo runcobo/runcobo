@@ -14,8 +14,6 @@ Runcobo is an api framework in Crystal.
 
 ## Installation
 
-0. Note: It was in an early version.
-
 1. Add the dependency to your `shard.yml`:
 
 ```yaml

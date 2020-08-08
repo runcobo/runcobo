@@ -1,10 +1,10 @@
 name: runcobo
-version: 0.2.0
+version: 1.0.0
 
 authors:
   - Shootingfly
 
-crystal: 0.34.0
+crystal: 0.35.1
 
 license: MIT
 
