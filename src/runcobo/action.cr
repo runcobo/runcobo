@@ -1,5 +1,6 @@
 require "radix"
 require "./actions/router"
+require "./actions/redirector"
 require "./actions/render"
 require "./actions/pipe"
 require "./actions/params/form"
@@ -15,6 +16,7 @@ module Runcobo
     # Route table
     ROUTES = [] of Runcobo::Route
     extend Runcobo::Router
+    include Runcobo::Redirector
     include Runcobo::Render
     include Runcobo::Pipe
     include Runcobo::Params::Form
