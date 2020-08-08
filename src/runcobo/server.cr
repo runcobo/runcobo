@@ -24,7 +24,7 @@ module Runcobo
 
     # Creates a TCPServer listening on `host`:`port`.
     def listen
-      Runcobo::Log.info { "listen on #{host}:#{port}" }
+      Runcobo::Log.info { "Listening on #{host}:#{port}" }
       if (certificate_chain = cert) && (private_key = key)
         instance.bind_tls(host: host, port: port, context: generate_tls_context(certificate_chain, private_key), reuse_port: reuse_port)
       else
@@ -37,7 +37,6 @@ module Runcobo
 
     # Closes server.
     def close : Nil
-      Runcobo::Log.info { "=== shutdown: #{Time.local} ===" }
       Runcobo::Log.info { "Goodbye!" }
       instance.close
       Signal::INT.reset
@@ -50,10 +49,11 @@ module Runcobo
 
     # Set Default handlers, you can change them by `handlers=` after `initialize`.
     def self.default_handlers : Array(HTTP::Handler)
-      [
-        Runcobo::RouteHandler.new,
-        Runcobo::RouteNotFoundHandler.new,
-      ] of HTTP::Handler
+      handlers = [] of HTTP::Handler
+      handlers << Runcobo::LogHandler.new unless ENV["SKIP_LOG"]?
+      handlers << Runcobo::RouteHandler.new
+      handlers << Runcobo::RouteNotFoundHandler.new
+      handlers
     end
 
     # Generate TLS context with certificate_chain and private_key

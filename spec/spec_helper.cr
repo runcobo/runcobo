@@ -1,6 +1,8 @@
 require "spec"
 require "../src/runcobo.cr"
 
+ENV["SKIP_LOG"] = "true"
+
 def run_server
   server = Runcobo::Server.new
   server.port = 3222
