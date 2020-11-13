@@ -8,10 +8,11 @@ module Runcobo
     def call(context)
       start = Time.monotonic
       context.request.request_id = UUID.random
-      Runcobo::Log.info { "[#{context.request.request_id}] #{context.request.method} #{context.request.resource}" }
+      Runcobo::Log.context.set(request_id: context.request.request_id.to_s)
+      Runcobo::Log.info { "#{context.request.method} #{context.request.resource}" }
       call_next(context)
       duration = Time.monotonic - start
-      Runcobo::Log.info { "[#{context.request.request_id}] Completed #{context.response.status_code} in #{elapsed_text(duration)}\n" }
+      Runcobo::Log.info { "Completed #{context.response.status_code} in #{elapsed_text(duration)}\n" }
     end
 
     def elapsed_text(elapsed : Time::Span) : String

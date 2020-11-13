@@ -24,7 +24,7 @@ module Runcobo
 
     # Creates a TCPServer listening on `host`:`port`.
     def listen
-      Runcobo::Log.info { "Listening on #{host}:#{port}" }
+      Runcobo::Log.info { "Runcobo #{Runcobo::VERSION} is listening on #{host}:#{port}" }
       if (certificate_chain = cert) && (private_key = key)
         instance.bind_tls(host: host, port: port, context: generate_tls_context(certificate_chain, private_key), reuse_port: reuse_port)
       else
