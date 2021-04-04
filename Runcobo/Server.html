@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 0.36.1">
+<meta name="crystal_docs.project_version" content="2.0.0">
+<meta name="crystal_docs.project_name" content="runcobo">
+
+
+
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/doc.js"></script>
+
+  <meta name="repository-name" content="runcobo">
+  <title>Runcobo::Server - runcobo 2.0.0</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../index.html">
+          runcobo
+        </a>
+      </h1>
+
+      <span class="project-version">
+        2.0.0
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class=" " data-id="runcobo/Array" data-name="array(t)">
+      <a href="../Array.html">Array</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/BaseAction" data-name="baseaction">
+      <a href="../BaseAction.html">BaseAction</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Bool" data-name="bool">
+      <a href="../Bool.html">Bool</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Float32" data-name="float32">
+      <a href="../Float32.html">Float32</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Float64" data-name="float64">
+      <a href="../Float64.html">Float64</a>
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/HTTP" data-name="http">
+      <a href="../HTTP.html">HTTP</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/HTTP/Request" data-name="http::request">
+      <a href="../HTTP/Request.html">Request</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Int32" data-name="int32">
+      <a href="../Int32.html">Int32</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Int64" data-name="int64">
+      <a href="../Int64.html">Int64</a>
+      
+    </li>
+  
+  <li class="parent open current" data-id="runcobo/Runcobo" data-name="runcobo">
+      <a href="../Runcobo.html">Runcobo</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/Runcobo/Action" data-name="runcobo::action">
+      <a href="../Runcobo/Action.html">Action</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Cli" data-name="runcobo::cli">
+      <a href="../Runcobo/Cli.html">Cli</a>
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/Runcobo/Commands" data-name="runcobo::commands">
+      <a href="../Runcobo/Commands.html">Commands</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/Runcobo/Commands/Routes" data-name="runcobo::commands::routes">
+      <a href="../Runcobo/Commands/Routes.html">Routes</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Commands/RouteTables" data-name="runcobo::commands::routetables">
+      <a href="../Runcobo/Commands/RouteTables.html">RouteTables</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Healthcheck" data-name="runcobo::healthcheck">
+      <a href="../Runcobo/Healthcheck.html">Healthcheck</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/LogHandler" data-name="runcobo::loghandler">
+      <a href="../Runcobo/LogHandler.html">LogHandler</a>
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/Runcobo/Params" data-name="runcobo::params">
+      <a href="../Runcobo/Params.html">Params</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Form" data-name="runcobo::params::form">
+      <a href="../Runcobo/Params/Form.html">Form</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Json" data-name="runcobo::params::json">
+      <a href="../Runcobo/Params/Json.html">Json</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Query" data-name="runcobo::params::query">
+      <a href="../Runcobo/Params/Query.html">Query</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Url" data-name="runcobo::params::url">
+      <a href="../Runcobo/Params/Url.html">Url</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/Runcobo/Pipe" data-name="runcobo::pipe">
+      <a href="../Runcobo/Pipe.html">Pipe</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/Runcobo/Pipe/Byebye" data-name="runcobo::pipe::byebye">
+      <a href="../Runcobo/Pipe/Byebye.html">Byebye</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Pipe/Continue" data-name="runcobo::pipe::continue">
+      <a href="../Runcobo/Pipe/Continue.html">Continue</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Redirector" data-name="runcobo::redirector">
+      <a href="../Runcobo/Redirector.html">Redirector</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Render" data-name="runcobo::render">
+      <a href="../Runcobo/Render.html">Render</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Route" data-name="runcobo::route">
+      <a href="../Runcobo/Route.html">Route</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/RouteHandler" data-name="runcobo::routehandler">
+      <a href="../Runcobo/RouteHandler.html">RouteHandler</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/RouteNotFoundHandler" data-name="runcobo::routenotfoundhandler">
+      <a href="../Runcobo/RouteNotFoundHandler.html">RouteNotFoundHandler</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Router" data-name="runcobo::router">
+      <a href="../Runcobo/Router.html">Router</a>
+      
+    </li>
+  
+  <li class=" current" data-id="runcobo/Runcobo/Server" data-name="runcobo::server">
+      <a href="../Runcobo/Server.html">Server</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/String" data-name="string">
+      <a href="../String.html">String</a>
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">class</span> Runcobo::Server
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../Runcobo/Server.html">Runcobo::Server</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L5" target="_blank">
+        runcobo/server.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new-class-method" class="signature"><strong>.new</strong></a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#default_handlers:Array(HTTP::Handler)-class-method" class="signature"><strong>.default_handlers</strong> : Array(HTTP::Handler)</a>
+        
+          <div class="summary"><p>Set Default handlers, you can change them by <code><a href="../Runcobo/Server.html#handlers=(handlers:Array(HTTP::Handler))-instance-method">#handlers=</a></code> after <code>initialize</code>.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#cert:String?-instance-method" class="signature"><strong>#cert</strong> : String?</a>
+        
+          <div class="summary"><p>SSL Certificate file.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#cert=(cert:String?)-instance-method" class="signature"><strong>#cert=</strong>(cert : String?)</a>
+        
+          <div class="summary"><p>SSL Certificate file.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#client:HTTP::Client-instance-method" class="signature"><strong>#client</strong> : HTTP::Client</a>
+        
+          <div class="summary"><p>Creates a client for server.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#close:Nil-instance-method" class="signature"><strong>#close</strong> : Nil</a>
+        
+          <div class="summary"><p>Closes server.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#generate_tls_context(certificate_chain:String,private_key:String):OpenSSL::SSL::Context::Server-instance-method" class="signature"><strong>#generate_tls_context</strong>(certificate_chain : String, private_key : String) : OpenSSL::SSL::Context::Server</a>
+        
+          <div class="summary"><p>Generate TLS context with certificate_chain and private_key</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#handlers:Array(HTTP::Handler)-instance-method" class="signature"><strong>#handlers</strong> : Array(HTTP::Handler)</a>
+        
+          <div class="summary"><p>Handlers, defaults to <code><a href="../Runcobo/Server.html#default_handlers:Array(HTTP::Handler)-class-method">.default_handlers</a></code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#handlers=(handlers:Array(HTTP::Handler))-instance-method" class="signature"><strong>#handlers=</strong>(handlers : Array(HTTP::Handler))</a>
+        
+          <div class="summary"><p>Handlers, defaults to <code><a href="../Runcobo/Server.html#default_handlers:Array(HTTP::Handler)-class-method">.default_handlers</a></code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#host:String-instance-method" class="signature"><strong>#host</strong> : String</a>
+        
+          <div class="summary"><p>Host, defaults to "0.0.0.0".</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#host=(host:String)-instance-method" class="signature"><strong>#host=</strong>(host : String)</a>
+        
+          <div class="summary"><p>Host, defaults to "0.0.0.0".</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#instance:HTTP::Server-instance-method" class="signature"><strong>#instance</strong> : HTTP::Server</a>
+        
+          <div class="summary"><p>Server instance.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#key:String?-instance-method" class="signature"><strong>#key</strong> : String?</a>
+        
+          <div class="summary"><p>SSL key file.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#key=(key:String?)-instance-method" class="signature"><strong>#key=</strong>(key : String?)</a>
+        
+          <div class="summary"><p>SSL key file.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#listen-instance-method" class="signature"><strong>#listen</strong></a>
+        
+          <div class="summary"><p>Creates a TCPServer listening on <code><a href="../Runcobo/Server.html#host:String-instance-method">#host</a></code>:<code><a href="../Runcobo/Server.html#port:Int32-instance-method">#port</a></code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#port:Int32-instance-method" class="signature"><strong>#port</strong> : Int32</a>
+        
+          <div class="summary"><p>Port, defaults to 3000.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#port=(port:Int32)-instance-method" class="signature"><strong>#port=</strong>(port : Int32)</a>
+        
+          <div class="summary"><p>Port, defaults to 3000.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#reuse_port:Bool-instance-method" class="signature"><strong>#reuse_port</strong> : Bool</a>
+        
+          <div class="summary"><p>Reuse Port, defaults to false.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#reuse_port=(reuse_port:Bool)-instance-method" class="signature"><strong>#reuse_port=</strong>(reuse_port : Bool)</a>
+        
+          <div class="summary"><p>Reuse Port, defaults to false.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>
+
+        <a class="method-permalink" href="#new-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L21" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="default_handlers:Array(HTTP::Handler)-class-method">
+      <div class="signature">
+        
+        def self.<strong>default_handlers</strong> : <a href="../Array.html">Array</a>(HTTP::Handler)
+
+        <a class="method-permalink" href="#default_handlers:Array(HTTP::Handler)-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Set Default handlers, you can change them by <code><a href="../Runcobo/Server.html#handlers=(handlers:Array(HTTP::Handler))-instance-method">#handlers=</a></code> after <code>initialize</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L51" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="cert:String?-instance-method">
+      <div class="signature">
+        
+        def <strong>cert</strong> : <a href="../String.html">String</a>?
+
+        <a class="method-permalink" href="#cert:String?-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>SSL Certificate file.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L15" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="cert=(cert:String?)-instance-method">
+      <div class="signature">
+        
+        def <strong>cert=</strong>(cert : <a href="../String.html">String</a>?)
+
+        <a class="method-permalink" href="#cert=(cert:String?)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>SSL Certificate file.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L15" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="client:HTTP::Client-instance-method">
+      <div class="signature">
+        
+        def <strong>client</strong> : HTTP::Client
+
+        <a class="method-permalink" href="#client:HTTP::Client-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Creates a client for server.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L46" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="close:Nil-instance-method">
+      <div class="signature">
+        
+        def <strong>close</strong> : Nil
+
+        <a class="method-permalink" href="#close:Nil-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Closes server.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L39" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="generate_tls_context(certificate_chain:String,private_key:String):OpenSSL::SSL::Context::Server-instance-method">
+      <div class="signature">
+        
+        def <strong>generate_tls_context</strong>(certificate_chain : <a href="../String.html">String</a>, private_key : <a href="../String.html">String</a>) : OpenSSL::SSL::Context::Server
+
+        <a class="method-permalink" href="#generate_tls_context(certificate_chain:String,private_key:String):OpenSSL::SSL::Context::Server-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Generate TLS context with certificate_chain and private_key</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L60" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="handlers:Array(HTTP::Handler)-instance-method">
+      <div class="signature">
+        
+        def <strong>handlers</strong> : <a href="../Array.html">Array</a>(HTTP::Handler)
+
+        <a class="method-permalink" href="#handlers:Array(HTTP::Handler)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Handlers, defaults to <code><a href="../Runcobo/Server.html#default_handlers:Array(HTTP::Handler)-class-method">.default_handlers</a></code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L13" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="handlers=(handlers:Array(HTTP::Handler))-instance-method">
+      <div class="signature">
+        
+        def <strong>handlers=</strong>(handlers : <a href="../Array.html">Array</a>(HTTP::Handler))
+
+        <a class="method-permalink" href="#handlers=(handlers:Array(HTTP::Handler))-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Handlers, defaults to <code><a href="../Runcobo/Server.html#default_handlers:Array(HTTP::Handler)-class-method">.default_handlers</a></code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L13" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="host:String-instance-method">
+      <div class="signature">
+        
+        def <strong>host</strong> : <a href="../String.html">String</a>
+
+        <a class="method-permalink" href="#host:String-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Host, defaults to "0.0.0.0".</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L7" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="host=(host:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>host=</strong>(host : <a href="../String.html">String</a>)
+
+        <a class="method-permalink" href="#host=(host:String)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Host, defaults to "0.0.0.0".</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L7" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="instance:HTTP::Server-instance-method">
+      <div class="signature">
+        
+        def <strong>instance</strong> : HTTP::Server
+
+        <a class="method-permalink" href="#instance:HTTP::Server-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Server instance.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L19" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="key:String?-instance-method">
+      <div class="signature">
+        
+        def <strong>key</strong> : <a href="../String.html">String</a>?
+
+        <a class="method-permalink" href="#key:String?-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>SSL key file.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L17" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="key=(key:String?)-instance-method">
+      <div class="signature">
+        
+        def <strong>key=</strong>(key : <a href="../String.html">String</a>?)
+
+        <a class="method-permalink" href="#key=(key:String?)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>SSL key file.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L17" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="listen-instance-method">
+      <div class="signature">
+        
+        def <strong>listen</strong>
+
+        <a class="method-permalink" href="#listen-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Creates a TCPServer listening on <code><a href="../Runcobo/Server.html#host:String-instance-method">#host</a></code>:<code><a href="../Runcobo/Server.html#port:Int32-instance-method">#port</a></code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L26" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="port:Int32-instance-method">
+      <div class="signature">
+        
+        def <strong>port</strong> : <a href="../Int32.html">Int32</a>
+
+        <a class="method-permalink" href="#port:Int32-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Port, defaults to 3000.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L9" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="port=(port:Int32)-instance-method">
+      <div class="signature">
+        
+        def <strong>port=</strong>(port : <a href="../Int32.html">Int32</a>)
+
+        <a class="method-permalink" href="#port=(port:Int32)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Port, defaults to 3000.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L9" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="reuse_port:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>reuse_port</strong> : <a href="../Bool.html">Bool</a>
+
+        <a class="method-permalink" href="#reuse_port:Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Reuse Port, defaults to false.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L11" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="reuse_port=(reuse_port:Bool)-instance-method">
+      <div class="signature">
+        
+        def <strong>reuse_port=</strong>(reuse_port : <a href="../Bool.html">Bool</a>)
+
+        <a class="method-permalink" href="#reuse_port=(reuse_port:Bool)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Reuse Port, defaults to false.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/server.cr#L11" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 0.36.1">
+<meta name="crystal_docs.project_version" content="2.0.0">
+<meta name="crystal_docs.project_name" content="runcobo">
+
+
+
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/doc.js"></script>
+
+  <meta name="repository-name" content="runcobo">
+  <title>Runcobo::Action - runcobo 2.0.0</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../index.html">
+          runcobo
+        </a>
+      </h1>
+
+      <span class="project-version">
+        2.0.0
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class=" " data-id="runcobo/Array" data-name="array(t)">
+      <a href="../Array.html">Array</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/BaseAction" data-name="baseaction">
+      <a href="../BaseAction.html">BaseAction</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Bool" data-name="bool">
+      <a href="../Bool.html">Bool</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Float32" data-name="float32">
+      <a href="../Float32.html">Float32</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Float64" data-name="float64">
+      <a href="../Float64.html">Float64</a>
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/HTTP" data-name="http">
+      <a href="../HTTP.html">HTTP</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/HTTP/Request" data-name="http::request">
+      <a href="../HTTP/Request.html">Request</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Int32" data-name="int32">
+      <a href="../Int32.html">Int32</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Int64" data-name="int64">
+      <a href="../Int64.html">Int64</a>
+      
+    </li>
+  
+  <li class="parent open current" data-id="runcobo/Runcobo" data-name="runcobo">
+      <a href="../Runcobo.html">Runcobo</a>
+      
+        <ul>
+  
+  <li class=" current" data-id="runcobo/Runcobo/Action" data-name="runcobo::action">
+      <a href="../Runcobo/Action.html">Action</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Cli" data-name="runcobo::cli">
+      <a href="../Runcobo/Cli.html">Cli</a>
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/Runcobo/Commands" data-name="runcobo::commands">
+      <a href="../Runcobo/Commands.html">Commands</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/Runcobo/Commands/Routes" data-name="runcobo::commands::routes">
+      <a href="../Runcobo/Commands/Routes.html">Routes</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Commands/RouteTables" data-name="runcobo::commands::routetables">
+      <a href="../Runcobo/Commands/RouteTables.html">RouteTables</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Healthcheck" data-name="runcobo::healthcheck">
+      <a href="../Runcobo/Healthcheck.html">Healthcheck</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/LogHandler" data-name="runcobo::loghandler">
+      <a href="../Runcobo/LogHandler.html">LogHandler</a>
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/Runcobo/Params" data-name="runcobo::params">
+      <a href="../Runcobo/Params.html">Params</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Form" data-name="runcobo::params::form">
+      <a href="../Runcobo/Params/Form.html">Form</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Json" data-name="runcobo::params::json">
+      <a href="../Runcobo/Params/Json.html">Json</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Query" data-name="runcobo::params::query">
+      <a href="../Runcobo/Params/Query.html">Query</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Url" data-name="runcobo::params::url">
+      <a href="../Runcobo/Params/Url.html">Url</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/Runcobo/Pipe" data-name="runcobo::pipe">
+      <a href="../Runcobo/Pipe.html">Pipe</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/Runcobo/Pipe/Byebye" data-name="runcobo::pipe::byebye">
+      <a href="../Runcobo/Pipe/Byebye.html">Byebye</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Pipe/Continue" data-name="runcobo::pipe::continue">
+      <a href="../Runcobo/Pipe/Continue.html">Continue</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Redirector" data-name="runcobo::redirector">
+      <a href="../Runcobo/Redirector.html">Redirector</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Render" data-name="runcobo::render">
+      <a href="../Runcobo/Render.html">Render</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Route" data-name="runcobo::route">
+      <a href="../Runcobo/Route.html">Route</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/RouteHandler" data-name="runcobo::routehandler">
+      <a href="../Runcobo/RouteHandler.html">RouteHandler</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/RouteNotFoundHandler" data-name="runcobo::routenotfoundhandler">
+      <a href="../Runcobo/RouteNotFoundHandler.html">RouteNotFoundHandler</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Router" data-name="runcobo::router">
+      <a href="../Runcobo/Router.html">Router</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Server" data-name="runcobo::server">
+      <a href="../Runcobo/Server.html">Server</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/String" data-name="string">
+      <a href="../String.html">String</a>
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">abstract class</span> Runcobo::Action
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../Runcobo/Action.html">Runcobo::Action</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type"><a href="../Runcobo/Params/Form.html">Runcobo::Params::Form</a></li>
+    
+      <li class="other-type"><a href="../Runcobo/Params/Json.html">Runcobo::Params::Json</a></li>
+    
+      <li class="other-type"><a href="../Runcobo/Params/Query.html">Runcobo::Params::Query</a></li>
+    
+      <li class="other-type"><a href="../Runcobo/Params/Url.html">Runcobo::Params::Url</a></li>
+    
+      <li class="other-type"><a href="../Runcobo/Pipe.html">Runcobo::Pipe</a></li>
+    
+      <li class="other-type"><a href="../Runcobo/Redirector.html">Runcobo::Redirector</a></li>
+    
+      <li class="other-type"><a href="../Runcobo/Render.html">Runcobo::Render</a></li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="extended-modules" class="anchor" href="#extended-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Extended Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type"><a href="../Runcobo/Router.html">Runcobo::Router</a></li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="direct-known-subclasses" class="anchor" href="#direct-known-subclasses">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Direct Known Subclasses
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type"><a href="../BaseAction.html">BaseAction</a></li>
+    
+  </ul>
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L12" target="_blank">
+        runcobo/action.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+  
+    <h2>
+      <a id="constant-summary" class="anchor" href="#constant-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+      Constant Summary
+    </h2>
+  
+  <dl>
+    
+      <dt class="entry-const" id="AFTER_PIPES">
+        <strong>AFTER_PIPES</strong> = <code><span class="o">[]</span> <span class="k">of</span> <span class="t">Crystal</span><span class="t">::</span><span class="t">Macros</span><span class="t">::</span><span class="t">MacroId</span></code>
+      </dt>
+      
+    
+      <dt class="entry-const" id="BEFORE_PIPES">
+        <strong>BEFORE_PIPES</strong> = <code><span class="o">[]</span> <span class="k">of</span> <span class="t">Crystal</span><span class="t">::</span><span class="t">Macros</span><span class="t">::</span><span class="t">MacroId</span></code>
+      </dt>
+      
+    
+      <dt class="entry-const" id="LAYOUT">
+        <strong>LAYOUT</strong> = <code><span class="s">&quot;&quot;</span></code>
+      </dt>
+      
+    
+      <dt class="entry-const" id="ROUTES">
+        <strong>ROUTES</strong> = <code><span class="o">[]</span> <span class="k">of</span> <span class="t">Runcobo</span><span class="t">::</span><span class="t">Route</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>Route table</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="SKIPPED_PIPES">
+        <strong>SKIPPED_PIPES</strong> = <code><span class="o">[]</span> <span class="k">of</span> <span class="t">Crystal</span><span class="t">::</span><span class="t">Macros</span><span class="t">::</span><span class="t">MacroId</span></code>
+      </dt>
+      
+    
+      <dt class="entry-const" id="TREE">
+        <strong>TREE</strong> = <code><span class="t">::</span><span class="t">Radix</span><span class="t">::</span><span class="t">Tree</span>(<span class="k">self</span>.<span class="k">class</span>).<span class="k">new</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>Radix Tree for classes inheriated from <code><a href="../BaseAction.html">BaseAction</a></code></p>
+      </dd>
+      
+    
+  </dl>
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new(context:HTTP::Server::Context)-class-method" class="signature"><strong>.new</strong>(context : HTTP::Server::Context)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#call-instance-method" class="signature"><strong>#call</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#context:HTTP::Server::Context-instance-method" class="signature"><strong>#context</strong> : HTTP::Server::Context</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#context=(context:HTTP::Server::Context)-instance-method" class="signature"><strong>#context=</strong>(context : HTTP::Server::Context)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#form_params-instance-method" class="signature"><strong>#form_params</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#json_params-instance-method" class="signature"><strong>#json_params</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#parse_params-instance-method" class="signature"><strong>#parse_params</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#query_params-instance-method" class="signature"><strong>#query_params</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#raw_body:String?-instance-method" class="signature"><strong>#raw_body</strong> : String?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#raw_body=(raw_body:String?)-instance-method" class="signature"><strong>#raw_body=</strong>(raw_body : String?)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#request:HTTP::Request-instance-method" class="signature"><strong>#request</strong> : HTTP::Request</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#request=(request:HTTP::Request)-instance-method" class="signature"><strong>#request=</strong>(request : HTTP::Request)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#url_params-instance-method" class="signature"><strong>#url_params</strong></a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="macro-summary" class="anchor" href="#macro-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#call(&body)-macro" class="signature"><strong>call</strong>(&body)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from module <code><a href="../Runcobo/Pipe.html">Runcobo::Pipe</a></code></h3>
+  
+  
+    <a href="../Runcobo/Pipe.html#byebye-instance-method" class="tooltip">
+      <span>byebye</span>
+    byebye</a>, 
+    
+  
+    <a href="../Runcobo/Pipe.html#continue-instance-method" class="tooltip">
+      <span>continue</span>
+    continue</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from module <code><a href="../Runcobo/Render.html">Runcobo::Render</a></code></h3>
+  
+  
+    <a href="../Runcobo/Render.html#render_body(body:String,*,status_code:Int32=200,content_type:String?=nil):HTTP::Server::Context-instance-method" class="tooltip">
+      <span>render_body(body : String, *, status_code : Int32 = <span class="n">200</span>, content_type : String? = <span class="n">nil</span>) : HTTP::Server::Context</span>
+    render_body</a>, 
+    
+  
+    <a href="../Runcobo/Render.html#render_file(path:String,*,status_code:Int32=200,content_type:String?,filename:String?=nil,disposition:String=&quot;attachment&quot;):HTTP::Server::Context-instance-method" class="tooltip">
+      <span>render_file(path : String, *, status_code : Int32 = <span class="n">200</span>, content_type : String?, filename : String? = <span class="n">nil</span>, disposition : String = <span class="s">&quot;attachment&quot;</span>) : HTTP::Server::Context</span>
+    render_file</a>, 
+    
+  
+    <a href="../Runcobo/Render.html#render_plain(text:String,*,status_code:Int32=200):HTTP::Server::Context-instance-method" class="tooltip">
+      <span>render_plain(text : String, *, status_code : Int32 = <span class="n">200</span>) : HTTP::Server::Context</span>
+    render_plain</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from module <code><a href="../Runcobo/Redirector.html">Runcobo::Redirector</a></code></h3>
+  
+  
+    <a href="../Runcobo/Redirector.html#redirect(url:String,*,status_code:Int32=302)-instance-method" class="tooltip">
+      <span>redirect(url : String, *, status_code : Int32 = <span class="n">302</span>)</span>
+    redirect</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new(context:HTTP::Server::Context)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(context : HTTP::Server::Context)
+
+        <a class="method-permalink" href="#new(context:HTTP::Server::Context)-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L33" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="call-instance-method">
+      <div class="signature">
+        abstract 
+        def <strong>call</strong>
+
+        <a class="method-permalink" href="#call-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L27" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="context:HTTP::Server::Context-instance-method">
+      <div class="signature">
+        
+        def <strong>context</strong> : HTTP::Server::Context
+
+        <a class="method-permalink" href="#context:HTTP::Server::Context-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L29" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="context=(context:HTTP::Server::Context)-instance-method">
+      <div class="signature">
+        
+        def <strong>context=</strong>(context : HTTP::Server::Context)
+
+        <a class="method-permalink" href="#context=(context:HTTP::Server::Context)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L29" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="form_params-instance-method">
+      <div class="signature">
+        
+        def <strong>form_params</strong>
+
+        <a class="method-permalink" href="#form_params-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L52" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="json_params-instance-method">
+      <div class="signature">
+        
+        def <strong>json_params</strong>
+
+        <a class="method-permalink" href="#json_params-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L56" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="parse_params-instance-method">
+      <div class="signature">
+        
+        def <strong>parse_params</strong>
+
+        <a class="method-permalink" href="#parse_params-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L40" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="query_params-instance-method">
+      <div class="signature">
+        
+        def <strong>query_params</strong>
+
+        <a class="method-permalink" href="#query_params-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L44" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="raw_body:String?-instance-method">
+      <div class="signature">
+        
+        def <strong>raw_body</strong> : <a href="../String.html">String</a>?
+
+        <a class="method-permalink" href="#raw_body:String?-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L31" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="raw_body=(raw_body:String?)-instance-method">
+      <div class="signature">
+        
+        def <strong>raw_body=</strong>(raw_body : <a href="../String.html">String</a>?)
+
+        <a class="method-permalink" href="#raw_body=(raw_body:String?)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L31" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="request:HTTP::Request-instance-method">
+      <div class="signature">
+        
+        def <strong>request</strong> : <a href="../HTTP/Request.html">HTTP::Request</a>
+
+        <a class="method-permalink" href="#request:HTTP::Request-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L30" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="request=(request:HTTP::Request)-instance-method">
+      <div class="signature">
+        
+        def <strong>request=</strong>(request : <a href="../HTTP/Request.html">HTTP::Request</a>)
+
+        <a class="method-permalink" href="#request=(request:HTTP::Request)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L30" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="url_params-instance-method">
+      <div class="signature">
+        
+        def <strong>url_params</strong>
+
+        <a class="method-permalink" href="#url_params-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L48" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="macro-detail" class="anchor" href="#macro-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Detail
+  </h2>
+  
+    <div class="entry-detail" id="call(&amp;body)-macro">
+      <div class="signature">
+        
+        macro <strong>call</strong>(&body)
+
+        <a class="method-permalink" href="#call(&body)-macro">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/action.cr#L60" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+</div>
+
+</body>
+</html>

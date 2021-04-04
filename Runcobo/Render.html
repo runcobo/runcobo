@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 0.36.1">
+<meta name="crystal_docs.project_version" content="2.0.0">
+<meta name="crystal_docs.project_name" content="runcobo">
+
+
+
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/doc.js"></script>
+
+  <meta name="repository-name" content="runcobo">
+  <title>Runcobo::Render - runcobo 2.0.0</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../index.html">
+          runcobo
+        </a>
+      </h1>
+
+      <span class="project-version">
+        2.0.0
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class=" " data-id="runcobo/Array" data-name="array(t)">
+      <a href="../Array.html">Array</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/BaseAction" data-name="baseaction">
+      <a href="../BaseAction.html">BaseAction</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Bool" data-name="bool">
+      <a href="../Bool.html">Bool</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Float32" data-name="float32">
+      <a href="../Float32.html">Float32</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Float64" data-name="float64">
+      <a href="../Float64.html">Float64</a>
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/HTTP" data-name="http">
+      <a href="../HTTP.html">HTTP</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/HTTP/Request" data-name="http::request">
+      <a href="../HTTP/Request.html">Request</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Int32" data-name="int32">
+      <a href="../Int32.html">Int32</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Int64" data-name="int64">
+      <a href="../Int64.html">Int64</a>
+      
+    </li>
+  
+  <li class="parent open current" data-id="runcobo/Runcobo" data-name="runcobo">
+      <a href="../Runcobo.html">Runcobo</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/Runcobo/Action" data-name="runcobo::action">
+      <a href="../Runcobo/Action.html">Action</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Cli" data-name="runcobo::cli">
+      <a href="../Runcobo/Cli.html">Cli</a>
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/Runcobo/Commands" data-name="runcobo::commands">
+      <a href="../Runcobo/Commands.html">Commands</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/Runcobo/Commands/Routes" data-name="runcobo::commands::routes">
+      <a href="../Runcobo/Commands/Routes.html">Routes</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Commands/RouteTables" data-name="runcobo::commands::routetables">
+      <a href="../Runcobo/Commands/RouteTables.html">RouteTables</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Healthcheck" data-name="runcobo::healthcheck">
+      <a href="../Runcobo/Healthcheck.html">Healthcheck</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/LogHandler" data-name="runcobo::loghandler">
+      <a href="../Runcobo/LogHandler.html">LogHandler</a>
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/Runcobo/Params" data-name="runcobo::params">
+      <a href="../Runcobo/Params.html">Params</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Form" data-name="runcobo::params::form">
+      <a href="../Runcobo/Params/Form.html">Form</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Json" data-name="runcobo::params::json">
+      <a href="../Runcobo/Params/Json.html">Json</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Query" data-name="runcobo::params::query">
+      <a href="../Runcobo/Params/Query.html">Query</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Params/Url" data-name="runcobo::params::url">
+      <a href="../Runcobo/Params/Url.html">Url</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="runcobo/Runcobo/Pipe" data-name="runcobo::pipe">
+      <a href="../Runcobo/Pipe.html">Pipe</a>
+      
+        <ul>
+  
+  <li class=" " data-id="runcobo/Runcobo/Pipe/Byebye" data-name="runcobo::pipe::byebye">
+      <a href="../Runcobo/Pipe/Byebye.html">Byebye</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Pipe/Continue" data-name="runcobo::pipe::continue">
+      <a href="../Runcobo/Pipe/Continue.html">Continue</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Redirector" data-name="runcobo::redirector">
+      <a href="../Runcobo/Redirector.html">Redirector</a>
+      
+    </li>
+  
+  <li class=" current" data-id="runcobo/Runcobo/Render" data-name="runcobo::render">
+      <a href="../Runcobo/Render.html">Render</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Route" data-name="runcobo::route">
+      <a href="../Runcobo/Route.html">Route</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/RouteHandler" data-name="runcobo::routehandler">
+      <a href="../Runcobo/RouteHandler.html">RouteHandler</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/RouteNotFoundHandler" data-name="runcobo::routenotfoundhandler">
+      <a href="../Runcobo/RouteNotFoundHandler.html">RouteNotFoundHandler</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Router" data-name="runcobo::router">
+      <a href="../Runcobo/Router.html">Router</a>
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/Runcobo/Server" data-name="runcobo::server">
+      <a href="../Runcobo/Server.html">Server</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="runcobo/String" data-name="string">
+      <a href="../String.html">String</a>
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">module</span> Runcobo::Render
+
+</h1>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="direct-including-types" class="anchor" href="#direct-including-types">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Direct including types
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type"><a href="../Runcobo/Action.html">Runcobo::Action</a></li>
+    
+  </ul>
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/actions/render.cr#L5" target="_blank">
+        runcobo/actions/render.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#render_body(body:String,*,status_code:Int32=200,content_type:String?=nil):HTTP::Server::Context-instance-method" class="signature"><strong>#render_body</strong>(body : String, *, status_code : Int32 = <span class="n">200</span>, content_type : String? = <span class="n">nil</span>) : HTTP::Server::Context</a>
+        
+          <div class="summary"><p>Renders Body with custom Content-Type.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#render_file(path:String,*,status_code:Int32=200,content_type:String?,filename:String?=nil,disposition:String=&quot;attachment&quot;):HTTP::Server::Context-instance-method" class="signature"><strong>#render_file</strong>(path : String, *, status_code : Int32 = <span class="n">200</span>, content_type : String?, filename : String? = <span class="n">nil</span>, disposition : String = <span class="s">&quot;attachment&quot;</span>) : HTTP::Server::Context</a>
+        
+          <div class="summary"><p>Renders File.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#render_plain(text:String,*,status_code:Int32=200):HTTP::Server::Context-instance-method" class="signature"><strong>#render_plain</strong>(text : String, *, status_code : Int32 = <span class="n">200</span>) : HTTP::Server::Context</a>
+        
+          <div class="summary"><p>Renders Plain with "text/plain" Content-Type.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="macro-summary" class="anchor" href="#macro-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#layout(filename)-macro" class="signature"><strong>layout</strong>(filename)</a>
+        
+          <div class="summary"><p>Set layout, support many Template Engines.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#render_jbuilder(filename,*,layout=&quot;&quot;,status_code=200,dir=&quot;src/views/&quot;,layout_dir=&quot;src/views/layouts/&quot;)-macro" class="signature"><strong>render_jbuilder</strong>(filename, *, layout = <span class="s">&quot;&quot;</span>, status_code = <span class="n">200</span>, dir = <span class="s">&quot;src/views/&quot;</span>, layout_dir = <span class="s">&quot;src/views/layouts/&quot;</span>)</a>
+        
+          <div class="summary"><p>Renders Jbuilder with "application/json" Content-Type.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#render_water(filename,*,layout=&quot;&quot;,status_code=200,dir=&quot;src/views/&quot;,layout_dir=&quot;src/views/layouts/&quot;)-macro" class="signature"><strong>render_water</strong>(filename, *, layout = <span class="s">&quot;&quot;</span>, status_code = <span class="n">200</span>, dir = <span class="s">&quot;src/views/&quot;</span>, layout_dir = <span class="s">&quot;src/views/layouts/&quot;</span>)</a>
+        
+          <div class="summary"><p>Renders Water with "text/html" Content-Type.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+<div class="methods-inherited">
+  
+</div>
+
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="render_body(body:String,*,status_code:Int32=200,content_type:String?=nil):HTTP::Server::Context-instance-method">
+      <div class="signature">
+        
+        def <strong>render_body</strong>(body : <a href="../String.html">String</a>, *, status_code : <a href="../Int32.html">Int32</a> = <span class="n">200</span>, content_type : <a href="../String.html">String</a>? = <span class="n">nil</span>) : HTTP::Server::Context
+
+        <a class="method-permalink" href="#render_body(body:String,*,status_code:Int32=200,content_type:String?=nil):HTTP::Server::Context-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Renders Body with custom Content-Type.</p>
+
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">RenderBody</span> <span class="o">&lt;</span> <span class="t">BaseAction</span>
+  call <span class="k">do</span>
+    render_body <span class="s">&quot;Hello World!&quot;</span>, content_type: <span class="s">&quot;text/html&quot;</span>, status_code: <span class="n">200</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/actions/render.cr#L104" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="render_file(path:String,*,status_code:Int32=200,content_type:String?,filename:String?=nil,disposition:String=&quot;attachment&quot;):HTTP::Server::Context-instance-method">
+      <div class="signature">
+        
+        def <strong>render_file</strong>(path : <a href="../String.html">String</a>, *, status_code : <a href="../Int32.html">Int32</a> = <span class="n">200</span>, content_type : <a href="../String.html">String</a>?, filename : <a href="../String.html">String</a>? = <span class="n">nil</span>, disposition : <a href="../String.html">String</a> = <span class="s">&quot;attachment&quot;</span>) : HTTP::Server::Context
+
+        <a class="method-permalink" href="#render_file(path:String,*,status_code:Int32=200,content_type:String?,filename:String?=nil,disposition:String=&quot;attachment&quot;):HTTP::Server::Context-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Renders File.</p>
+
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">RenderFile</span> <span class="o">&lt;</span> <span class="t">BaseAction</span>
+  call <span class="k">do</span>
+    render_file <span class="s">&quot;public/robot.txt&quot;</span>, status_code: <span class="n">200</span>, content_type: <span class="s">&quot;text/plain&quot;</span>, filename: <span class="s">&quot;robot&quot;</span>, disposition: <span class="s">&quot;inline&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/actions/render.cr#L120" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="render_plain(text:String,*,status_code:Int32=200):HTTP::Server::Context-instance-method">
+      <div class="signature">
+        
+        def <strong>render_plain</strong>(text : <a href="../String.html">String</a>, *, status_code : <a href="../Int32.html">Int32</a> = <span class="n">200</span>) : HTTP::Server::Context
+
+        <a class="method-permalink" href="#render_plain(text:String,*,status_code:Int32=200):HTTP::Server::Context-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Renders Plain with "text/plain" Content-Type.</p>
+
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">RenderPlain</span> <span class="o">&lt;</span> <span class="t">BaseAction</span>
+  call <span class="k">do</span>
+    render_plain <span class="s">&quot;Hello World!&quot;</span>, status_code: <span class="n">200</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/actions/render.cr#L88" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="macro-detail" class="anchor" href="#macro-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Detail
+  </h2>
+  
+    <div class="entry-detail" id="layout(filename)-macro">
+      <div class="signature">
+        
+        macro <strong>layout</strong>(filename)
+
+        <a class="method-permalink" href="#layout(filename)-macro">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Set layout, support many Template Engines.</p>
+
+<p><code>src/views/layouts/application.jbuilder</code> must be present.
+<code>src/views/example.jbuilder</code> must be present.</p>
+
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">Layout</span> <span class="o">&lt;</span> <span class="t">BaseAction</span>
+  layout <span class="s">&quot;application&quot;</span>
+
+  call <span class="k">do</span>
+    render_jbuilder <span class="s">&quot;example&quot;</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/actions/render.cr#L20" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="render_jbuilder(filename,*,layout=&amp;quot;&amp;quot;,status_code=200,dir=&amp;quot;src/views/&amp;quot;,layout_dir=&amp;quot;src/views/layouts/&amp;quot;)-macro">
+      <div class="signature">
+        
+        macro <strong>render_jbuilder</strong>(filename, *, layout = <span class="s">&quot;&quot;</span>, status_code = <span class="n">200</span>, dir = <span class="s">&quot;src/views/&quot;</span>, layout_dir = <span class="s">&quot;src/views/layouts/&quot;</span>)
+
+        <a class="method-permalink" href="#render_jbuilder(filename,*,layout=&quot;&quot;,status_code=200,dir=&quot;src/views/&quot;,layout_dir=&quot;src/views/layouts/&quot;)-macro">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Renders Jbuilder with "application/json" Content-Type.</p>
+
+<p><code>src/views/layouts/application.jbuilder</code> must be present.
+<code>src/views/renders/example.jbuilder</code> must be present.</p>
+
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">RenderJbuilder</span> <span class="o">&lt;</span> <span class="t">BaseAction</span>
+  layout <span class="s">&quot;application&quot;</span>
+
+  call <span class="k">do</span>
+    render_jbuilder <span class="s">&quot;renders/example&quot;</span>, status_code: <span class="n">200</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/actions/render.cr#L67" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="render_water(filename,*,layout=&amp;quot;&amp;quot;,status_code=200,dir=&amp;quot;src/views/&amp;quot;,layout_dir=&amp;quot;src/views/layouts/&amp;quot;)-macro">
+      <div class="signature">
+        
+        macro <strong>render_water</strong>(filename, *, layout = <span class="s">&quot;&quot;</span>, status_code = <span class="n">200</span>, dir = <span class="s">&quot;src/views/&quot;</span>, layout_dir = <span class="s">&quot;src/views/layouts/&quot;</span>)
+
+        <a class="method-permalink" href="#render_water(filename,*,layout=&quot;&quot;,status_code=200,dir=&quot;src/views/&quot;,layout_dir=&quot;src/views/layouts/&quot;)-macro">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Renders Water with "text/html" Content-Type.</p>
+
+<p>Option <code><a href="../Runcobo/Render.html#layout(filename)-macro">layout</a></code>, the layout default to nil
+Option <code>status_code</code>, rewrite status code for response, default to 200
+Option <code>dir</code>, rewrite dir of file, default to "src/views/"
+Option <code>layout_dir</code>, rewrite dir of layout, default to "src/views/layouts/"</p>
+
+<p><code>src/views/layouts/application.water</code> must be present.
+<code>src/views/renders/example.water</code> must be present.</p>
+
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">RenderWater</span> <span class="o">&lt;</span> <span class="t">BaseAction</span>
+  layout <span class="s">&quot;application&quot;</span>
+
+  call <span class="k">do</span>
+    render_water <span class="s">&quot;renders/example&quot;</span>, status_code: <span class="n">200</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/runcobo/runcobo/blob/v2.0.0/src/runcobo/actions/render.cr#L42" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+</div>
+
+</body>
+</html>
