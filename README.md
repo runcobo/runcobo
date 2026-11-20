@@ -537,9 +537,50 @@ Runcobo prefers to use [jennifer.cr](https://github.com/imdrasil/jennifer.cr) , 
 
 ## Contributing
 
+### Local development
+
+The development branch requires Crystal >= 1.22.0 and < 2.0.0, with Shards
+and Make installed. Automated checks run on Crystal 1.22.0 and 1.22.3.
+
+```shell
+git clone https://github.com/runcobo/runcobo.git
+cd runcobo
+make check
+```
+
+`make check` installs dependencies, runs the specs, checks formatting in `src`
+and `spec`, builds `bin/runcobo`, and checks its `--version` and `--help`
+commands. It does not install anything into system directories. The same
+command runs for pushes and pull requests targeting `main`.
+
+For individual tasks:
+
+```shell
+make build         # Build bin/runcobo locally; also the default for make
+make test          # Install dependencies and run specs
+make format        # Apply formatting to src and spec
+make format-check  # Check formatting without changing files
+make help          # List development commands
+```
+
+Dependencies and the local dependency lock file (`shard.lock`) are ignored in
+this library repository. Applications should commit their own lock files.
+
+To install the executable explicitly, use `make install`. The default
+installation directory is `/usr/local/bin`; use an existing writable prefix
+to avoid requiring elevated permissions:
+
+```shell
+make install INSTALL_DIR="$HOME/.local/bin"
+```
+
+Add that directory to your shell's command search path before running `runcobo`.
+
+### Submitting changes
+
 1. Fork it (<https://github.com/runcobo/runcobo/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Write and execute specs (`crystal spec`) and formatting checks (`crystal tool format`)
+3. Write specs and run `make check` (use `make format` to apply formatting)
 4. Commit your changes (`git commit -am 'Add some feature'`)
 5. Push to the branch (`git push origin my-new-feature`)
 6. Create a new Pull Request

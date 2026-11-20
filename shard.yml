@@ -4,7 +4,7 @@ version: 2.0.0
 authors:
   - Shootingfly
 
-crystal: 1.0.0
+crystal: ">= 1.22.0, < 2.0.0"
 
 license: MIT
 
