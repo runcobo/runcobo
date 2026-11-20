@@ -7,7 +7,11 @@
 
 # Introduction
 
-Runcobo is a general purpose framework built on Crystal.  
+Runcobo is a general purpose framework built on Crystal.
+
+This development branch targets Runcobo 3.0 and uses request-validation contracts
+for typed request inputs. It is a breaking change from 2.x; see the migration
+notes below. The version is `3.0.0-dev`, not a published release.
 
 ### Commands
 
@@ -61,14 +65,18 @@ Crystal is a type safe, compiled language inspired by the simplicity of Ruby. Ty
 See [https://crystal-lang.org/install/](https://crystal-lang.org/install) to install Crystal.
 
 ### Install Runcobo
-You can install Runcobo from sources. Other installations are working on.
+You can install Runcobo from sources. Crystal >= 1.22.0 and < 2.0.0 is required.
+The request-validation dependency is private: configure an authenticated Git
+connection with read access to `shootingfly/request-validation` before installing.
+The manifest uses the repository's secure-shell Git address.
 
 ```shell
-curl -L https://github.com/runcobo/runcobo/archive/stable.zip --output runcobo.zip
-unzip runcobo.zip
-cd runcobo-stable/
-sudo make install
-runcobo -v
+git clone https://github.com/runcobo/runcobo.git
+cd runcobo
+make build
+./bin/runcobo --version
+# Optional installation into a writable directory:
+make install INSTALL_DIR="$HOME/.local/bin"
 ```
 
 # Getting Started
@@ -89,12 +97,19 @@ dependencies:
 ```crystal
 require "runcobo"
 
+class AddContract < RequestValidation::Contract
+  schema do
+    required :a, Int32
+    required :b, Int32
+  end
+end
+
 class Api::V1::Add < BaseAction
   get "/api/v1/add"
-  query NamedTuple(a: Int32, b: Int32)
+  query AddContract
 
   call do
-    sum = params[:a] + params[:b]
+    sum = input.a + input.b
     render_plain sum.to_s
   end
 end
@@ -157,12 +172,19 @@ end
 URL Params can be declared in the route like `/add/:apple_count/:banana_count`. And then you should use `url` method to declare the type of URL params.
 
 ```crystal
+class FruitCountContract < RequestValidation::Contract
+  schema do
+    required :apple_count, Int32
+    required :banana_count, Int32
+  end
+end
+
 class Example < BaseAction
   get "/add/:apple_count/:banana_count"
-  url NamedTuple(apple_count: Int32, banana_count: Int32)
+  url FruitCountContract
 
   call do
-    sum = params[:apple_count] + params[:banana_count]
+    sum = input.apple_count + input.banana_count
     render_plain sum.to_s
   end
 end
@@ -203,9 +225,9 @@ end
 ### After Filter
 ```crystal
 class AfterExample < BaseAction
-  after log_params
-  def log_params
-    Runcobo::Log.info { "#{params}" }
+  after log_request
+  def log_request
+    Runcobo::Log.info { "#{request.path}" }
   end
 
   get "/after_example"
@@ -234,74 +256,125 @@ class SkipExample < BaseAction
 end
 ```
 
-# Params
+# Request contracts
 
-### Type-safe Params
+Declare a `RequestValidation::Contract` and bind it to the action's input source.
+Runcobo loads request-validation through the normal entry point. Installing the
+framework requires read access to the private `shootingfly/request-validation`
+repository; the pinned dependency is installed transitively.
 
-**Params in Runcobo are type-safe.**
-
-### Three Steps To Use Params
-
-+ First, declare what params you expect and what type you expect by following methods: `url`, `query`, `form` and `json`.
-+ Next, Runcobo parses request and wraps params to a local variable called `params`.
-+ Third, use `params` variable to get or set request params.
-
-### Url Params
 ```crystal
-class UrlExample < BaseAction
-  get "/url_example/:a/:b"
-  url NamedTuple(a: Int32, b: Int32)
+require "runcobo"
 
-  call do
-    sum = params[:a] + params[:b]
-    render_plain sum.to_s
+class CreateAuthorContract < RequestValidation::Contract
+  schema do
+    required :name, String
+    optional :bio, String, nullable: true
+  end
+
+  rule :name do |name, errors|
+    errors.add(:name, :blank) if name.empty?
   end
 end
-```
 
-### Query Params
-```crystal
-class QueryExample < BaseAction
-  get "/query_example"
-  query NamedTuple(a: Int32, b: Int32)
+class Authors::Create < BaseAction
+  post "/authors"
+  json CreateAuthorContract
 
   call do
-    sum = params[:a] + params[:b]
-    render_plain sum.to_s
+    render_json({name: input.name, bio: input.bio}, status_code: 201)
   end
 end
+
+Runcobo.start
 ```
 
-### Form Params
-```crystal
-class FormExample < BaseAction
-  post "/form_example"
-  form NamedTuple(a: Int32, b: Int32)
+`url`, `query`, `form`, and `json` accept contract types. A single contract
+provides `input`; multiple contracts provide `url_input`, `query_input`,
+`form_input`, and `json_input` for the declared sources. These are concrete
+contract outputs, with required fields retaining non-nullable types. Sources
+are validated separately and their errors are collected together; same-named
+fields do not overwrite each other. Results are cached only on the current
+action instance, so repeated access does not rerun rules or reread the body.
 
-  call do
-    sum = params[:a] + params[:b]
-    render_plain sum.to_s
-  end
-end
+Contracts currently support top-level `String`, `Int32`, `Int64`, `Float64`,
+and `Bool` fields. Optional fields may be missing; explicit null requires
+`nullable: true`. Use the generated `field_present?` accessor to distinguish
+missing fields from explicit null when updating records. Required strings can
+still be empty; add a rule when blank strings are invalid. Nested objects and
+arrays are not currently supported. Add that capability to request-validation
+before migrating endpoints that require it.
+
+Query, path and form values use the contract's string conversions. Contract
+booleans accept only `true` and `false`, and repeated scalar query/form fields
+are rejected. Structured bodies retain their native types: strings are not
+converted into numbers or booleans. Unknown fields are rejected by default;
+use `query SomeContract, unknown_keys: :strip` (or the corresponding source)
+to ignore them explicitly.
+
+Each source may have only one contract, including inherited declarations. An
+action cannot declare both a form and a structured-body contract. Conflicts and
+old `NamedTuple` parameter declarations fail at compile time. Shared filters can
+live in a base action without parameter declarations.
+
+### Validation failures and request limits
+
+Failures return an `application/json` response with an `errors` array:
+
+```json
+{
+  "errors": [
+    {"source": "query", "path": ["id"], "code": "invalid_type", "params": {"expected": "Int64"}}
+  ]
+}
 ```
 
-### JSON Params
-```crystal
-class JsonExample < BaseAction
-  post "/json_example"
-  json NamedTuple(a: Int32, b: Int32)
+Errors preserve the contract's paths, stable codes and message parameters,
+without including raw input values. Field failures, custom rule failures and
+non-object bodies return 422. Malformed structured bodies return 400. Body
+contracts require the corresponding media type: `application/json` (including
+`application/*+json`) or `application/x-www-form-urlencoded`; unsupported or
+missing media types return 415. Media type parameters such as a charset are
+accepted. Multipart forms are not supported by this integration.
 
-  call do
-    sum = params[:a] + params[:b]
-    render_plain sum.to_s
-  end
-end
-```
+Contract bodies are read lazily and limited to 1,048,576 bytes by default,
+including bodies without a content length. Exceeding the limit returns 413.
+Override `max_request_body_size : Int64` on an action to change this limit.
+Body reading occurs only for declared body contracts; it does not happen in
+the action constructor.
 
-### Params Merge Order
-You can declare various kinds of params in a action. If params are in same key, they will be merged in following order:
+The action body and existing `before`/`after` filters run only after validation
+succeeds. For authentication or other checks that must run before body reading,
+use `before_request method_name`. These filters support inheritance and `skip`;
+render a response and return `byebye` to halt without parsing or validating.
+An early halt or validation failure skips the remaining action filters and body.
 
-`Query Params < Form Params < JSON Params < Url Params`
+Override `render_validation_errors(issues : Array(Runcobo::Validation::Issue), *,
+status_code : Int32)` to customize error responses. Rules' programming errors
+continue to propagate as exceptions. For contracts with constructor dependencies,
+override `build_query_contract`, `build_url_contract`, `build_form_contract`, or
+`build_json_contract` on the action to return the configured contract instance.
+
+## Migrating from 2.x
+
+Runcobo 3.0 removes the old parameter mode instead of maintaining two parsers:
+
+- Replace `query NamedTuple(...)` (and `url`, `form`, `json`) with a contract class
+  containing `schema` declarations. Unsupported declarations fail with a migration
+  diagnostic at compile time.
+- Replace the merged `params[:field]` access with `input.field` for one source,
+  or a source accessor such as `url_input.field` when there are multiple sources.
+  There is no implicit source priority or `params[:__action]`; use `self.class.name`
+  for the action name.
+- Use `optional` for missing fields and `nullable: true` for explicit null. Optional
+  output types require nil handling; presence accessors distinguish missing/null.
+- Unknown fields now produce errors unless `unknown_keys: :strip` is explicit.
+  Repeated scalar fields are errors, and boolean strings must be `true` or `false`.
+  The primitive `from_http_param` extensions and `parse_params` helpers are removed.
+- Send the correct body media type, account for the default body limit and error
+  response statuses, and move authentication to `before_request` when appropriate.
+- Nested inputs, array fields and custom conversion types are not yet supported.
+  These require request-validation enhancements before those endpoints can migrate.
 
 # Render
 
@@ -541,6 +614,8 @@ Runcobo prefers to use [jennifer.cr](https://github.com/imdrasil/jennifer.cr) , 
 
 The development branch requires Crystal >= 1.22.0 and < 2.0.0, with Shards
 and Make installed. Automated checks run on Crystal 1.22.0 and 1.22.3.
+Installation and development checks require read access to the private
+`shootingfly/request-validation` runtime dependency.
 
 ```shell
 git clone https://github.com/runcobo/runcobo.git
@@ -548,8 +623,23 @@ cd runcobo
 make check
 ```
 
-`make check` installs dependencies, runs the specs, checks formatting in `src`
-and `spec`, builds `bin/runcobo`, and checks its `--version` and `--help`
+If you already have a local clone of request-validation, create the ignored
+`shard.override.yml` in the Runcobo root instead of downloading it:
+
+```yaml
+dependencies:
+  request_validation:
+    path: ../request-validation
+```
+
+Automated checks use the repository secret `REQUEST_VALIDATION_SSH_KEY`, a
+read-only deploy key for request-validation, to check out the pinned dependency.
+They then use a temporary dependency override, without embedding credentials in
+the shard manifest. Full checks on forks need equivalent private-repository
+access; GitHub does not expose the upstream secret to fork pull requests.
+
+`make check` installs dependencies, runs the specs, compiles the example application,
+checks formatting in `src` and `spec`, builds `bin/runcobo`, and checks its `--version` and `--help`
 commands. It does not install anything into system directories. The same
 command runs for pushes and pull requests targeting `main`.
 
@@ -558,6 +648,7 @@ For individual tasks:
 ```shell
 make build         # Build bin/runcobo locally; also the default for make
 make test          # Install dependencies and run specs
+make examples-check # Compile the example application without linking
 make format        # Apply formatting to src and spec
 make format-check  # Check formatting without changing files
 make help          # List development commands

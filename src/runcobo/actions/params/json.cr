@@ -1,29 +1,8 @@
 module Runcobo
-  # Defines json params.
-  #
-  # ```
-  # class JsonParamsExample < BaseAction
-  #   get "/params"
-  #   json NamedTuple(
-  #     id: Int64,
-  #     category: String,
-  #     user: NamedTuple(
-  #       email: String,
-  #       gender: Int32,
-  #     ),
-  #   )
-  #
-  #   call do
-  #     sum = params[:user][:gender] + 6
-  #     render_plain "#{sum}: #{category}"
-  #   end
-  # end
-  # ```
+  # Declares a request contract for the structured body.
   module Params::Json
-    macro json(code)
-      def json_params
-        {{code}}.not_nil!.from_json(@raw_body.not_nil!)
-      end
+    macro json(type, *, unknown_keys = :reject)
+      contract_params :json, {{type}}, unknown_keys: {{unknown_keys}}
     end
   end
 end

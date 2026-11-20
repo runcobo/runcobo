@@ -1,3 +1,4 @@
+require "json"
 require "jbuilder"
 require "water"
 
@@ -73,6 +74,14 @@ module Runcobo
       {% else %}
         Jbuilder.embed("{{dir.id}}{{filename.id}}.jbuilder", @context.response.output, "{{layout_dir.id}}{{layout_file.id}}.jbuilder")
       {% end %}
+      @context
+    end
+
+    # Renders a value directly without a template.
+    def render_json(value, *, status_code : Int32 = 200) : HTTP::Server::Context
+      @context.response.content_type = "application/json"
+      @context.response.status_code = status_code
+      value.to_json(@context.response.output)
       @context
     end
 

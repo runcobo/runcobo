@@ -18,6 +18,10 @@ module Runcobo
       {% SKIPPED_PIPES << method.id %}
     end
 
+    macro before_request(method)
+      {% BEFORE_REQUEST_PIPES << method.id %}
+    end
+
     macro before(method)
       {% BEFORE_PIPES << method.id %}
     end
@@ -27,19 +31,39 @@ module Runcobo
     end
 
     macro included
-      SKIPPED_PIPES = [] of Crystal::Macros::MacroId
-      BEFORE_PIPES  = [] of Crystal::Macros::MacroId
-      AFTER_PIPES   = [] of Crystal::Macros::MacroId
+      SKIPPED_PIPES        = [] of Crystal::Macros::MacroId
+      BEFORE_REQUEST_PIPES = [] of Crystal::Macros::MacroId
+      BEFORE_PIPES         = [] of Crystal::Macros::MacroId
+      AFTER_PIPES          = [] of Crystal::Macros::MacroId
+
+      protected def run_before_request_actions
+        call_before_request_actions
+      end
 
       macro inherited
         # :nodoc:
         SKIPPED_PIPES = [] of Crystal::Macros::MacroId
         # :nodoc:
-        BEFORE_PIPES = [] of Crystal::Macros::MacroId
+        BEFORE_REQUEST_PIPES = [] of Crystal::Macros::MacroId
+        BEFORE_PIPES         = [] of Crystal::Macros::MacroId
         # :nodoc:
         AFTER_PIPES = [] of Crystal::Macros::MacroId
         inherit_pipes
+
+        protected def run_before_request_actions
+          call_before_request_actions
+        end
       end
+    end
+
+    macro call_before_request_actions
+      {% pipes = BEFORE_REQUEST_PIPES.reject { |x| SKIPPED_PIPES.includes?(x) } %}
+      {% for method in pipes %}
+        pipe_result = {{ method }}
+        if pipe_result.is_a?(Runcobo::Pipe::Byebye)
+          return pipe_result
+        end
+      {% end %}
     end
 
     macro call_before_actions
@@ -64,6 +88,10 @@ module Runcobo
 
     # :nodoc:
     macro inherit_pipes
+      \{% for v in @type.ancestors.first.constant :BEFORE_REQUEST_PIPES %}
+        \{% BEFORE_REQUEST_PIPES << v %}
+      \{% end %}
+
       \{% for v in @type.ancestors.first.constant :BEFORE_PIPES %}
         \{% BEFORE_PIPES << v %}
       \{% end %}
