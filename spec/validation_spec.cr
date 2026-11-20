@@ -534,3 +534,45 @@ describe "request contracts" do
     response.status_code.should eq(415)
   end
 end
+
+class StructuredDetailsContract < RequestValidation::Contract
+  schema do
+    required :enabled, Bool
+  end
+end
+
+class StructuredBodyContract < RequestValidation::Contract
+  schema do
+    required :tags, Array(String)
+    required :details, StructuredDetailsContract
+  end
+end
+
+class StructuredBodyAction < BaseAction
+  post "/contracts/structured"
+  json StructuredBodyContract
+
+  call do
+    render_json({tags: input.tags, enabled: input.details.enabled})
+  end
+end
+
+describe "structured request contracts" do
+  it "passes typed arrays and nested objects through the request boundary" do
+    response = validation_request("POST", "/contracts/structured", %({"tags":["one","two"],"details":{"enabled":false}}),
+      HTTP::Headers{"Content-Type" => "application/json"})
+    response.status_code.should eq(200)
+    body = JSON.parse(response.body)
+    body["tags"].as_a.map(&.as_s).should eq(["one", "two"])
+    body["enabled"].as_bool.should be_false
+  end
+
+  it "preserves nested error paths and array indexes in framework responses" do
+    response = validation_request("POST", "/contracts/structured", %({"tags":[7],"details":{"enabled":"false"}}),
+      HTTP::Headers{"Content-Type" => "application/json"})
+    response.status_code.should eq(422)
+    errors = JSON.parse(response.body)["errors"].as_a
+    errors.map { |error| error["source"].as_s }.uniq.should eq(["json"])
+    errors.map { |error| error["path"].to_json }.should eq([%(["tags",0]), %(["details","enabled"])])
+  end
+end
