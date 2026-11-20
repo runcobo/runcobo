@@ -1,0 +1,33 @@
+version: 2.0
+shards:
+  crsql:
+    git: git@github.com:shootingfly/crsql.git
+    version: 0.1.0+git.commit.21a76cdadc3bdeff7315de39414f956de8f23002
+
+  db:
+    git: https://github.com/crystal-lang/crystal-db.git
+    version: 0.15.0
+
+  jbuilder:
+    git: https://github.com/shootingfly/jbuilder.git
+    version: 1.0.0
+
+  pg:
+    git: https://github.com/will/crystal-pg.git
+    version: 0.31.0
+
+  radix:
+    git: https://github.com/luislavena/radix.git
+    version: 0.4.1
+
+  request_validation:
+    git: git@github.com:shootingfly/request-validation.git
+    version: 0.1.0+git.commit.7d98e3d8c1bd7b8134ecf0198188b686509c5130
+
+  runcobo:
+    path: ../..
+    version: 3.0.0-dev
+
+  water:
+    git: https://github.com/shootingfly/water.git
+    version: 1.0.0

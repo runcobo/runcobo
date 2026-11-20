@@ -600,13 +600,31 @@ table %|class="table table-hover"| {
 }
 ``` 
 
-# Model
+# Database access
 
-You can see all ORMs from [awesome-crystal].(https://github.com/veelenga/awesome-crystal#ormodm-extensions)
+Runcobo supports [crsql](https://github.com/shootingfly/crsql) through a complete
+[PostgreSQL example](examples/crsql/README.md). Request contracts produce typed
+inputs, named queries generate typed data-access methods, and actions explicitly
+construct their responses. The example includes partial updates with presence
+flags and a two-write transaction with rollback on a duplicate book identifier.
 
-Runcobo prefers to use [jennifer.cr](https://github.com/imdrasil/jennifer.cr) , you can check its [docs](https://imdrasil.github.io/jennifer.cr/docs/) and [api](https://imdrasil.github.io/jennifer.cr/latest/).
+Database access is optional: add the `pg` driver to applications that need it.
+The framework does not create a global pool or require a database for ordinary
+routes. crsql and sqlc are build-time tools; a compiled application runs with its
+generated queries and database driver alone.
 
-[jennifer.cr](https://github.com/imdrasil/jennifer.cr) is an Active Record pattern implementation with flexible query chainable builder and migration system.
+Use an application-specific subclass of `Runcobo::RouteHandler` and override its
+protected `build_action(action_class, context)` hook to attach a typed query
+object or service to your own base action. The example opens one application
+pool, passes a store through that handler, and closes the pool when the server
+scope ends. Caller-managed transactions use `queries.with_transaction(tx)`;
+transactional work always uses that store instead of checking out another pool
+connection.
+
+Custom handlers work with `Runcobo.start(handlers: ...)` and
+`Runcobo::Server.new(handlers: ...)`. They can also be assigned before sockets
+are bound. See the example for setup, schema initialization, generation,
+running requests, and dedicated-database tests.
 
 ## Contributing
 
@@ -615,7 +633,9 @@ Runcobo prefers to use [jennifer.cr](https://github.com/imdrasil/jennifer.cr) , 
 The development branch requires Crystal >= 1.22.0 and < 2.0.0, with Shards
 and Make installed. Automated checks run on Crystal 1.22.0 and 1.22.3.
 Installation and development checks require read access to the private
-`shootingfly/request-validation` runtime dependency.
+`shootingfly/request-validation` runtime dependency. Generator development checks
+also require the private `shootingfly/crsql` repository. Generation uses sqlc
+1.31.1; database tests use a dedicated PostgreSQL database.
 
 ```shell
 git clone https://github.com/runcobo/runcobo.git
@@ -630,25 +650,32 @@ If you already have a local clone of request-validation, create the ignored
 dependencies:
   request_validation:
     path: ../request-validation
+  crsql:
+    path: ../crsql
 ```
 
-Automated checks use the repository secret `REQUEST_VALIDATION_SSH_KEY`, a
-read-only deploy key for request-validation, to check out the pinned dependency.
-They then use a temporary dependency override, without embedding credentials in
-the shard manifest. Full checks on forks need equivalent private-repository
-access; GitHub does not expose the upstream secret to fork pull requests.
+Automated checks use separate read-only deploy keys in the repository secrets
+`REQUEST_VALIDATION_SSH_KEY` and `CRSQL_SSH_KEY` to check out pinned dependencies.
+They use a temporary dependency override, without embedding credentials in the
+shard manifest. Full checks on forks need equivalent private-repository access;
+GitHub does not expose upstream secrets to fork pull requests.
 
 `make check` installs dependencies, runs the specs, compiles the example application,
 checks formatting in `src` and `spec`, builds `bin/runcobo`, and checks its `--version` and `--help`
 commands. It does not install anything into system directories. The same
-command runs for pushes and pull requests targeting `main`.
+command runs for pushes and pull requests targeting `main`. Automated checks
+also run `make generate-check` and `make integration`; see the database example
+for preparing the dedicated test database.
 
 For individual tasks:
 
 ```shell
 make build         # Build bin/runcobo locally; also the default for make
 make test          # Install dependencies and run specs
-make examples-check # Compile the example application without linking
+make examples-check # Compile the example applications without linking
+make generate      # Regenerate the crsql example queries (requires sqlc)
+make generate-check # Check generation against the committed file
+make integration   # Run with DATABASE_URL pointing to runcobo_crsql_test
 make format        # Apply formatting to src and spec
 make format-check  # Check formatting without changing files
 make help          # List development commands

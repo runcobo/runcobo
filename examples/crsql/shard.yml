@@ -1,0 +1,23 @@
+name: runcobo_crsql_example
+version: 0.1.0
+crystal: ">= 1.22.0, < 2.0.0"
+license: MIT
+
+dependencies:
+  runcobo:
+    path: ../..
+    version: 3.0.0-dev
+  pg:
+    github: will/crystal-pg
+    version: ~> 0.31.0
+
+development_dependencies:
+  crsql:
+    git: git@github.com:shootingfly/crsql.git
+    commit: 21a76cdadc3bdeff7315de39414f956de8f23002
+
+targets:
+  server:
+    main: src/main.cr
+  crsql:
+    main: lib/crsql/src/cli.cr

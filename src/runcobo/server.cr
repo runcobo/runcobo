@@ -10,7 +10,7 @@ module Runcobo
     # Reuse Port, defaults to false.
     property reuse_port : Bool = false
     # Handlers, defaults to `.default_handlers`.
-    property handlers : Array(HTTP::Handler) = default_handlers
+    getter handlers : Array(HTTP::Handler)
     # SSL Certificate file.
     property cert : String? = nil
     # SSL key file.
@@ -18,8 +18,18 @@ module Runcobo
     # Server instance.
     getter instance : HTTP::Server
 
-    def initialize
+    def initialize(@handlers : Array(HTTP::Handler) = Server.default_handlers)
       @instance = HTTP::Server.new(handlers)
+    end
+
+    # Configure handlers before binding sockets or starting the server.
+    def handlers=(handlers : Array(HTTP::Handler)) : Array(HTTP::Handler)
+      unless instance.addresses.empty?
+        raise ArgumentError.new("Cannot change handlers after binding the server")
+      end
+      @handlers = handlers
+      @instance = HTTP::Server.new(handlers)
+      handlers
     end
 
     # Creates a TCPServer listening on `host`:`port`.
@@ -47,7 +57,7 @@ module Runcobo
       HTTP::Client.new(host, port)
     end
 
-    # Set Default handlers, you can change them by `handlers=` after `initialize`.
+    # Default handlers can be replaced before the server binds its sockets.
     def self.default_handlers : Array(HTTP::Handler)
       handlers = [] of HTTP::Handler
       handlers << Runcobo::LogHandler.new unless ENV["SKIP_LOG"]?
