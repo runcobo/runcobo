@@ -68,6 +68,8 @@ module Runcobo
         end
       rescue %validation_error : Runcobo::Validation::Failure
         render_validation_errors(%validation_error.issues, status_code: %validation_error.status_code)
+      ensure
+        @request.runcobo_input.cleanup_uploads
       end
     end
   end

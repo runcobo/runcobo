@@ -300,9 +300,9 @@ end
 
 `read_input` checks format and caches input; `validate(Contract)` checks fields.
 No empty contract is needed. `skip read_input` skips inherited preparation for
-an unconditional endpoint. Read-only `GET` and `HEAD` requests ignore the body;
-multipart bodies are left for an existing multipart consumer. This entry does
-not add multipart validation support.
+an unconditional endpoint. Read-only `GET` and `HEAD` requests ignore the body.
+Multipart fields use native parameter conversions; uploaded files are accessed
+separately with `upload` or `uploads`.
 
 ### Declare separate source contracts
 
@@ -381,7 +381,8 @@ non-object bodies return 422. Malformed structured bodies return 400. Body
 contracts require the corresponding media type: `application/json` (including
 `application/*+json`) or `application/x-www-form-urlencoded`; unsupported or
 missing media types return 415. Media type parameters such as a charset are
-accepted. Multipart forms are not supported by this integration.
+accepted. A `form` contract also accepts ordinary fields from `multipart/form-data`;
+files are kept separately from contract fields. Malformed multipart bodies return 400.
 
 Contract bodies are read lazily and limited to 1,048,576 bytes by default,
 including bodies without a content length. Exceeding the limit returns 413.
@@ -392,8 +393,10 @@ middleware buffering needs it; it does not happen in the action constructor.
 Both contract styles and `read_input` share `request.runcobo_input`: raw bytes,
 parsed query/form fields and parsed structured input are cached per request.
 Middleware can set `request.runcobo_input.max_body_size` and call `body` to enforce
-a limit using the same buffer. The request body is replayable for existing body
-consumers. Declared contract results are cached per action; explicit `validate`
+a limit using the same buffer for non-multipart requests. For multipart requests,
+middleware only configures the limit; the parser counts bytes while receiving
+parts, without caching the entire body string. Declared contract results are
+cached per action; explicit `validate`
 calls run their contracts against the cached input on each call. There is no
 second parser or additional coercion layer.
 
@@ -431,6 +434,67 @@ Runcobo 3.0 removes the old parameter mode instead of maintaining two parsers:
 - Declare field constraints in `schema`, for example
   `required :count, Int64, gteq: 2, lteq: 100`. Their error codes, paths and
   parameters pass through the same validation response as custom rules.
+
+# Static files and uploads
+
+Mount a directory by placing `StaticFiles` before the action router:
+
+```crystal
+Runcobo.start handlers: [
+  Runcobo::StaticFiles.new("/assets", directory: "public"),
+  Runcobo::RouteHandler.new,
+  Runcobo::RouteNotFoundHandler.new,
+] of HTTP::Handler
+```
+
+`/assets/css/app.css` reads `public/css/app.css`. The wrapper reuses Crystal's
+static file handler for content types, conditional caching, precompressed files
+and range reads. Directory listing is disabled; paths and symlinks must remain
+inside the configured directory. A missing directory can be created later.
+Unmatched prefixes and missing files fall through to the next handler; missing
+`HEAD` responses return 404 without a body. Static mounts accept `GET` and `HEAD`,
+with no body sent for `HEAD`. Other methods return 405 with `Allow: GET, HEAD`.
+This does not add implicit `HEAD` routes to actions.
+
+Receive files in an ordinary action:
+
+```crystal
+Dir.mkdir_p("storage/uploads")
+
+class Files::Create < BaseAction
+  post "/files"
+
+  call do
+    file = upload("file")
+    name = Random::Secure.hex(16)
+    file.save("storage/uploads/#{name}")
+    render_json({name: name, filename: file.filename, size: file.size})
+  end
+end
+```
+
+`upload("file")` returns one `Runcobo::UploadFile`; missing or repeated single-file
+fields use the normal validation error hook. `uploads("files")` returns an array,
+or an empty array when absent. Ordinary fields continue to use `validate(Contract)`
+or a declared `form` contract. Multipart input is parsed once regardless of the
+access order, and file parts do not appear as unknown ordinary fields.
+
+The object exposes `filename`, `content_type`, actual byte `size`, and a seekable
+temporary `file`. `save(path)` copies the entire file without changing the read
+position; the application prepares the directory and chooses the destination.
+Names and content types come from client metadata and do not determine storage paths.
+
+Files go directly to temporary files. The entire request, including fields,
+headers and multipart epilogues, uses `max_request_body_size`; the default is
+1,048,576 bytes. Override it for larger uploads. Each multipart request also has
+fixed limits of 100 files and 1,000 fields. Limits return 413 and malformed input
+returns 400 through the existing validation hook.
+
+The `call do ... end` lifecycle closes and deletes temporary files on normal
+completion, early returns and exceptions. Failed parsing also cleans files
+already received. Files persisted by `save` remain; retain a saved file rather
+than a request-owned temporary file for work after the action returns. File
+storage policy, image processing and business validation remain in the application.
 
 # Render
 
