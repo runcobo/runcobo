@@ -1,7 +1,7 @@
 module Runcobo
   # Declares a request contract for the query string.
   module Params::Query
-    macro query(type, *, unknown_keys = :reject)
+    macro query(type, *, unknown_keys = :strip)
       contract_params :query, {{type}}, unknown_keys: {{unknown_keys}}
     end
   end

@@ -354,9 +354,9 @@ still be empty; add a constraint or rule when blank strings are invalid.
 Query, path and form values use the contract's string conversions. Contract
 booleans accept only `true` and `false`, and repeated scalar query/form fields
 are rejected. Structured bodies retain their native types: strings are not
-converted into numbers or booleans. Unknown fields are rejected by default;
-use `query SomeContract, unknown_keys: :strip` (or the corresponding source)
-to ignore them explicitly.
+converted into numbers or booleans. Unknown fields are stripped by default, matching `validate`;
+use `query SomeContract, unknown_keys: :reject` (or the corresponding source)
+to reject them explicitly.
 
 Each source may have only one contract, including inherited declarations. An
 action cannot declare both a form and a structured-body contract. Conflicts and
@@ -425,7 +425,7 @@ Runcobo 3.0 removes the old parameter mode instead of maintaining two parsers:
   for the action name.
 - Use `optional` for missing fields and `nullable: true` for explicit null. Optional
   output types require nil handling; presence accessors distinguish missing/null.
-- Unknown fields now produce errors unless `unknown_keys: :strip` is explicit.
+- Both contract entry styles strip unknown fields by default. Explicit rejection uses `strict: true` with `validate`, or `unknown_keys: :reject` with a source declaration.
   Repeated scalar fields are errors, and boolean strings must be `true` or `false`.
   The primitive `from_http_param` extensions and `parse_params` helpers are removed.
 - Send the correct body media type, account for the default body limit and error

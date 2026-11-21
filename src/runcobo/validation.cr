@@ -36,7 +36,7 @@ module Runcobo
       end
     end
 
-    macro contract_params(source, type, *, unknown_keys = :reject)
+    macro contract_params(source, type, *, unknown_keys = :strip)
       {% if type.is_a?(Generic) && ["NamedTuple", "::NamedTuple"].includes?(type.name.stringify) %}
         {% raise "NamedTuple parameter declarations were removed in Runcobo 3.0; declare a RequestValidation::Contract instead" %}
       {% end %}
@@ -51,43 +51,14 @@ module Runcobo
       private def {{"__runcobo_#{source.id}_declaration_#{type.line_number}_#{type.column_number}".id}}
       end
 
-      @{{source.id}}_validation_result : RequestValidation::Result({{type}}::Output)?
+      @{{source.id}}_input : {{type}}::Output?
 
       protected def build_{{source.id}}_contract
         {{type}}.new(unknown_keys: {{unknown_keys}})
       end
 
-      private def {{source.id}}_validation_result : RequestValidation::Result({{type}}::Output)
-        @{{source.id}}_validation_result ||= begin
-          contract = build_{{source.id}}_contract
-          {% if source == :json %}
-            begin
-              contract.from_json(request.runcobo_input.json(max_request_body_size))
-            rescue error : Runcobo::Validation::RequestError
-              if error.issue.code == :invalid_json
-                RequestValidation::Result({{type}}::Output).failure([
-                  RequestValidation::Error.new(error.issue.path, error.issue.code, error.issue.params),
-                ])
-              else
-                raise Runcobo::Validation::RequestError.new("json", error.issue.code, error.status_code)
-              end
-            end
-          {% elsif source == :form %}
-            begin
-              contract.from_params(request.runcobo_input.form(max_request_body_size))
-            rescue error : Runcobo::Validation::RequestError
-              raise Runcobo::Validation::RequestError.new("form", error.issue.code, error.status_code)
-            end
-          {% elsif source == :query %}
-            contract.from_params(request.runcobo_input.query)
-          {% else %}
-            contract.from_params(request.route_params)
-          {% end %}
-        end
-      end
-
       def {{source.id}}_input : {{type}}::Output
-        {{source.id}}_validation_result.value!
+        @{{source.id}}_input ||= validate(build_{{source.id}}_contract, source: {{source}})
       end
 
       {% verbatim do %}
@@ -118,16 +89,18 @@ module Runcobo
             end
           {% end %}
 
-          def validation_response : HTTP::Server::Context?
+          protected def validate_declared_inputs : Nil
             issues = [] of Runcobo::Validation::Issue
+            status_code = 422
             {% for source in sources %}
-              {{source.id}}_validation_result.errors.each do |error|
-                issues << Runcobo::Validation::Issue.new({{source.id.stringify}}, error)
+              begin
+                {{source.id}}_input
+              rescue failure : Runcobo::Validation::Failure
+                issues.concat(failure.issues)
+                status_code = failure.status_code if status_code == 422
               end
             {% end %}
-            return nil if issues.empty?
-            status = issues.any? { |issue| issue.code == :invalid_json } ? 400 : 422
-            render_validation_errors(issues, status_code: status)
+            raise Runcobo::Validation::Failure.new(issues, status_code) unless issues.empty?
           end
         end
       {% end %}
@@ -147,20 +120,35 @@ module Runcobo
       request.runcobo_input.uploads(name, max_request_body_size)
     end
 
-    # A request-level contract, preserving the library's native Output.
+    # All contract entries share source reading, native conversion and failure handling.
     protected def validate(type : T.class, *, strict = false) forall T
-      contract = T.new(unknown_keys: strict ? RequestValidation::UnknownKeys::Reject : RequestValidation::UnknownKeys::Strip)
-      input = request.runcobo_input.merged(max_request_body_size)
-      result = if input.is_a?(HTTP::Params)
-                 contract.from_params(input)
-               else
-                 contract.from_json(input)
-               end
+      validate(T.new(unknown_keys: strict ? RequestValidation::UnknownKeys::Reject : RequestValidation::UnknownKeys::Strip))
+    end
+
+    protected def validate(contract : T, *, source : Symbol = :request) forall T
+      data = contract_input(source)
+      result = data.is_a?(JSON::Any) ? contract.from_json(data) : contract.from_params(data)
       unless result.errors.empty?
-        issues = result.errors.map { |error| Issue.new("request", error) }
-        raise Failure.new(issues)
+        raise Failure.new(result.errors.map { |error| Issue.new(source.to_s, error) })
       end
       result.value!
+    end
+
+    protected def validate_declared_inputs : Nil
+    end
+
+    private def contract_input(source : Symbol)
+      case source
+      when :request then request.runcobo_input.merged(max_request_body_size)
+      when :json    then request.runcobo_input.json(max_request_body_size)
+      when :form    then request.runcobo_input.form(max_request_body_size)
+      when :query   then request.runcobo_input.query
+      when :url     then request.route_params
+      else               raise ArgumentError.new("Unknown contract source: #{source}")
+      end
+    rescue failure : RequestError
+      raise failure if source == :request
+      raise RequestError.new(source.to_s, failure.issue.code, failure.status_code)
     end
 
     # Override per action when a larger or smaller request body is required.
