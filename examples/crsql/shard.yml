@@ -6,7 +6,7 @@ license: MIT
 dependencies:
   runcobo:
     path: ../..
-    version: 3.0.0-dev
+    version: 3.0.0
   pg:
     github: will/crystal-pg
     version: ~> 0.31.0
