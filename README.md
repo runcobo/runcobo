@@ -537,6 +537,62 @@ already received. Files persisted by `save` remain; retain a saved file rather
 than a request-owned temporary file for work after the action returns. File
 storage policy, image processing and business validation remain in the application.
 
+# Request addresses and trusted proxies
+
+Requests expose `base_url`, `scheme`, `protocol`, `host`, `port`, `ssl?` and
+`remote_ip`. The base address contains the scheme, host and non-default port,
+without the path or query. The transport determines the scheme for direct
+connections, including encrypted listeners. The peer address is retained on
+the server context; `remote_ip` is the resolved client address, or `nil` when
+there is no network peer.
+
+```crystal
+proxy_config = Runcobo::ProxyConfig.new(
+  trusted_proxies: ["127.0.0.1", "10.0.0.0/8", "2001:db8::/48"],
+)
+Runcobo.start(proxy_config: proxy_config)
+```
+
+No proxies are trusted by default. Only a trusted direct peer can supply
+`X-Forwarded-Proto`, `X-Forwarded-Host`, `X-Forwarded-Port` or `X-Forwarded-For`.
+The last scheme, host and port values describe the nearest trusted proxy's
+external request. Only `http` and `https` schemes are accepted. Invalid metadata
+falls back to the direct request/transport. Missing or invalid `Host` values
+fall back to the local listener address, or `localhost` for standalone requests.
+Default ports are omitted from `base_url`; literal hosts with colons are bracketed.
+
+The client address chain is walked from right to left, starting at the direct
+peer, until an untrusted address is reached. Values to its left are ignored.
+An invalid address encountered while traversing the trusted suffix causes a
+fallback to the direct peer. Address headers must contain literal addresses
+without ports. `Forwarded` and `Client-Ip` are not used; normalize the proxy
+configuration to the documented `X-Forwarded-*` header family.
+
+Provider-specific single-address headers are opt-in:
+
+```crystal
+proxy_config = Runcobo::ProxyConfig.new(
+  trusted_proxies: ["127.0.0.1"],
+  client_ip_header: "CF-Connecting-IP",
+)
+```
+
+This header takes precedence when present; an invalid value falls back to the
+peer. When absent, the ordinary address chain is used. Neither `CF-Connecting-IP`
+nor `X-Real-IP` is read automatically. Configure trusted proxies to strip or
+overwrite client-supplied forwarding and provider headers with correct external
+request information.
+
+`Runcobo::Server` installs `RequestInfoHandler` before application handlers,
+including custom handler lists. A supplied `RequestInfoHandler` takes precedence
+over the server's implicit handler and configuration. When composing a chain
+directly with `HTTP::Server.build_middleware`, install
+`Runcobo::RequestInfoHandler.new(proxy_config)` before handlers that use request
+metadata. Configuration is scoped to each server/handler. Fixed public addresses
+belong to application link generation; they do not change `request.base_url`.
+Crystal's existing `hostname` and deprecated `host_with_port` retain their native
+raw-header behavior; use `host`, `port` and `base_url` for resolved metadata.
+
 # Pagination
 
 `Runcobo::Pagination` holds the page, page size and 64-bit offset used by queries
