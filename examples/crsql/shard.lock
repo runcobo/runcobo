@@ -10,7 +10,7 @@ shards:
 
   jbuilder:
     git: https://github.com/shootingfly/jbuilder.git
-    version: 1.0.0
+    version: 1.1.0
 
   pg:
     git: https://github.com/will/crystal-pg.git
@@ -22,11 +22,11 @@ shards:
 
   request_validation:
     git: git@github.com:shootingfly/request-validation.git
-    version: 0.1.0+git.commit.7d98e3d8c1bd7b8134ecf0198188b686509c5130
+    version: 0.1.0
 
   runcobo:
     path: ../..
-    version: 3.0.0-dev
+    version: 3.0.0
 
   water:
     git: https://github.com/shootingfly/water.git

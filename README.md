@@ -9,9 +9,9 @@
 
 Runcobo is a general purpose framework built on Crystal.
 
-This development branch targets Runcobo 3.0 and uses request-validation contracts
-for typed request inputs. It is a breaking change from 2.x; see the migration
-notes below. The version is `3.0.0-dev`, not a published release.
+Runcobo 3.0 uses request-validation contracts for typed request inputs. It is a
+breaking change from 2.x; see the migration notes below. Version `3.0.0` depends
+on the tagged jbuilder `1.1.0` and private request-validation `0.1.0` releases.
 
 ### Commands
 
@@ -91,6 +91,7 @@ crystal init app demo && cd demo
 dependencies:
   runcobo:
     github: runcobo/runcobo
+    version: 3.0.0
 ```
 
 3.Write down the following code in `src/demo.cr`.
