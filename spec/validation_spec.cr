@@ -8,7 +8,7 @@ end
 
 class ContractQuerySpec < BaseAction
   get "/contracts/query"
-  query IdContract
+  query IdContract, unknown_keys: :reject
 
   call do
     render_json({id: input.id})
@@ -610,5 +610,71 @@ describe "declarative field constraints" do
       HTTP::Headers{"Content-Type" => "application/json"})
     response.status_code.should eq(200)
     JSON.parse(response.body)["count"].as_i.should eq(100)
+  end
+end
+
+class ContractDefaultQuerySpec < BaseAction
+  get "/contracts/default-query"
+  query IdContract
+  call do
+    render_json({id: input.id})
+  end
+end
+
+class ContractDefaultFormSpec < BaseAction
+  post "/contracts/default-form"
+  form IdContract
+  call do
+    render_json({id: input.id})
+  end
+end
+
+class ContractDefaultJsonSpec < BaseAction
+  post "/contracts/default-json"
+  json IdContract
+  call do
+    render_json({id: input.id})
+  end
+end
+
+class ContractDefaultNativeSpec < BaseAction
+  get "/contracts/default-native"
+  post "/contracts/default-native"
+  call do
+    input = validate(IdContract)
+    render_json({id: input.id})
+  end
+end
+
+describe "shared contract evaluation" do
+  it "strips unknown fields by default through both contract entry styles" do
+    paths = ["/contracts/default-query", "/contracts/default-native"]
+    paths.each do |path|
+      response = validation_request("GET", path + "?id=42&extra=value")
+      response.status_code.should eq(200)
+      JSON.parse(response.body).as_h.keys.should eq(["id"])
+    end
+    {"form" => {"id=42&extra=value", "application/x-www-form-urlencoded"},
+     "json" => { %({"id":42,"extra":"value"}), "application/json" }}.each do |source, values|
+      body, media_type = values
+      ["/contracts/default-#{source}", "/contracts/default-native"].each do |path|
+        response = validation_request("POST", path, body, HTTP::Headers{"Content-Type" => media_type})
+        response.status_code.should eq(200)
+        JSON.parse(response.body)["id"].as_i.should eq(42)
+      end
+    end
+  end
+
+  it "keeps native types and emits the same field errors through both entry styles" do
+    ["/contracts/default-json", "/contracts/default-native"].each do |path|
+      response = validation_request("POST", path, %({"id":"42"}), HTTP::Headers{"Content-Type" => "application/json"})
+      response.status_code.should eq(422)
+      error = JSON.parse(response.body)["errors"][0]
+      error["code"].as_s.should eq("invalid_type")
+      error["path"].as_a.map(&.as_s).should eq(["id"])
+      malformed = validation_request("POST", path, "{", HTTP::Headers{"Content-Type" => "application/json"})
+      malformed.status_code.should eq(400)
+      JSON.parse(malformed.body)["errors"][0]["code"].as_s.should eq("invalid_json")
+    end
   end
 end

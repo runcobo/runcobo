@@ -42,17 +42,11 @@ module Runcobo
       @request = @context.request
     end
 
-    def validation_response : HTTP::Server::Context?
-      nil
-    end
-
     macro call(&body)
       def call
         %early_result = run_before_request_actions
         return @context if %early_result.is_a?(Runcobo::Pipe::Byebye)
-        if %validation_response = validation_response
-          return %validation_response
-        end
+        validate_declared_inputs
         %pipe_result = call_before_actions
         if %pipe_result.is_a?(Runcobo::Pipe::Byebye)
           %context = @context

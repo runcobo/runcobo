@@ -1,7 +1,7 @@
 module Runcobo
   # Declares a request contract for the path.
   module Params::Url
-    macro url(type, *, unknown_keys = :reject)
+    macro url(type, *, unknown_keys = :strip)
       contract_params :url, {{type}}, unknown_keys: {{unknown_keys}}
     end
   end
