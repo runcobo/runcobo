@@ -576,3 +576,39 @@ describe "structured request contracts" do
     errors.map { |error| error["path"].to_json }.should eq([%(["tags",0]), %(["details","enabled"])])
   end
 end
+
+class BoundedContract < RequestValidation::Contract
+  schema do
+    required :name, String, filled: true, min_size: 2
+    required :count, Int64, gteq: 2, lteq: 100
+  end
+end
+
+class BoundedContractAction < BaseAction
+  post "/contracts/bounded"
+  json BoundedContract
+
+  call do
+    render_json({name: input.name, count: input.count})
+  end
+end
+
+describe "declarative field constraints" do
+  it "forwards constraint paths, codes and parameters through the request boundary" do
+    response = validation_request("POST", "/contracts/bounded", %({"name":"x","count":1}),
+      HTTP::Headers{"Content-Type" => "application/json"})
+    response.status_code.should eq(422)
+    errors = JSON.parse(response.body)["errors"].as_a
+    errors.map { |error| error["source"].as_s }.uniq.should eq(["json"])
+    errors.map { |error| error["path"].to_json }.should eq([%(["name"]), %(["count"])])
+    errors.map { |error| error["code"].as_s }.should eq(["min_size", "gteq"])
+    errors.map { |error| error["params"]["num"].as_i }.should eq([2, 2])
+  end
+
+  it "passes typed output to the action when constraints succeed" do
+    response = validation_request("POST", "/contracts/bounded", %({"name":"ok","count":100}),
+      HTTP::Headers{"Content-Type" => "application/json"})
+    response.status_code.should eq(200)
+    JSON.parse(response.body)["count"].as_i.should eq(100)
+  end
+end
