@@ -11,13 +11,14 @@ license: MIT
 dependencies:
   jbuilder:
     github: shootingfly/jbuilder
+    commit: 170027493696457657ab6ff570aff0c48e1f6f03
   radix:
     github: luislavena/radix
   water:
     github: shootingfly/water
   request_validation:
     git: git@github.com:shootingfly/request-validation.git
-    commit: 3794668eb7a61710c3513072cbc3a25f5a027e1a
+    commit: 17cf6a4bc0c18aa378ddd17c2285e09365e2e1ec
 
 development_dependencies:
   pg:

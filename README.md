@@ -373,8 +373,10 @@ Runcobo 3.0 removes the old parameter mode instead of maintaining two parsers:
   The primitive `from_http_param` extensions and `parse_params` helpers are removed.
 - Send the correct body media type, account for the default body limit and error
   response statuses, and move authentication to `before_request` when appropriate.
-- Nested inputs, array fields and custom conversion types are not yet supported.
-  These require request-validation enhancements before those endpoints can migrate.
+- Nested contracts and scalar arrays are supported. Custom conversion types are not.
+- Declare field constraints in `schema`, for example
+  `required :count, Int64, gteq: 2, lteq: 100`. Their error codes, paths and
+  parameters pass through the same validation response as custom rules.
 
 # Render
 
@@ -440,18 +442,24 @@ end
 
 ### Partial
 
-Runcobo renders partial view by build-in `read_file` macro. There's no magic about partial view. 
+Register reusable jbuilder templates once with `Jbuilder.templates "src/views"`.
+Declare their named locals on the first line and pass those locals explicitly.
+Partials run in separate methods on the current builder, so they do not capture
+or overwrite the action's local variables. Paths and locals are checked at build
+time; running the compiled application does not read template files.
+
 For example,
 
 *src/views/books/index.jbuilder*
 ```crystal
 json.array! "books", books do |json, book|
-  {{ read_file("src/views/books/_base_book.jbuilder").id }}
+  json.partial! "books/_base_book", book: book
 end
 ```
 
 *src/views/books/_base_book.jbuilder*
 ```crystal
+# locals: book
 json.book_id      book.id
 json.author       book.author
 json.name         book.name
