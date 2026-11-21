@@ -11,12 +11,12 @@ class StaticFilesFallback
   end
 end
 
-private def with_static_directory(&)
+private def with_static_directory(cache_control = nil, &)
   directory = File.tempname("runcobo-static")
   FileUtils.mkdir_p(File.join(directory, "nested"))
   File.write(File.join(directory, "nested/hello.txt"), "hello static")
   handler = HTTP::Server.build_middleware([
-    Runcobo::StaticFiles.new("/assets", directory: directory), StaticFilesFallback.new,
+    Runcobo::StaticFiles.new("/assets", directory: directory, cache_control: cache_control), StaticFilesFallback.new,
   ] of HTTP::Handler)
   yield directory, handler
 ensure
@@ -91,6 +91,25 @@ describe Runcobo::StaticFiles do
     end
   end
 
+  it "applies configured cache policy to files and conditional replies, not failures or fallthrough" do
+    with_static_directory(cache_control: "public, max-age=300") do |directory, handler|
+      first = static_files_request(handler)
+      first.headers["Cache-Control"].should eq("public, max-age=300")
+      head = static_files_request(handler, method: "HEAD")
+      head.headers["Cache-Control"].should eq("public, max-age=300")
+      cached = static_files_request(handler, headers: HTTP::Headers{"If-None-Match" => first.headers["ETag"]})
+      cached.status_code.should eq(304)
+      cached.headers["Cache-Control"].should eq("public, max-age=300")
+      ["/assets/missing", "/elsewhere"].each do |path|
+        static_files_request(handler, path: path).headers.has_key?("Cache-Control").should be_false
+      end
+      static_files_request(handler, method: "POST").headers.has_key?("Cache-Control").should be_false
+    end
+    with_static_directory do |directory, handler|
+      static_files_request(handler).headers.has_key?("Cache-Control").should be_false
+    end
+  end
+
   it "rejects traversal, encoded traversal and symlinks outside the directory" do
     with_static_directory do |directory, handler|
       outside = File.tempfile("runcobo-static-outside")
@@ -111,7 +130,7 @@ describe Runcobo::StaticFiles do
   end
 
   it "checks precompressed file symlinks before sending" do
-    with_static_directory do |directory, handler|
+    with_static_directory(cache_control: "public, max-age=300") do |directory, handler|
       outside = File.tempfile("runcobo-compressed-outside")
       begin
         outside.print("secret")
@@ -120,6 +139,7 @@ describe Runcobo::StaticFiles do
         response = static_files_request(handler, headers: HTTP::Headers{"Accept-Encoding" => "gzip"})
         response.status_code.should eq(404)
         response.headers.has_key?("Content-Encoding").should be_false
+        response.headers.has_key?("Cache-Control").should be_false
       ensure
         outside.close
         outside.delete

@@ -3,7 +3,7 @@ require "http/server/handlers/static_file_handler"
 module Runcobo
   # Mount a public directory before the action router.
   class StaticFiles < HTTP::StaticFileHandler
-    def initialize(prefix : String, *, directory : String)
+    def initialize(prefix : String, *, directory : String, @cache_control : String? = nil)
       unless prefix.starts_with?("/") && !prefix.includes?('?') && !prefix.includes?('#')
         raise ArgumentError.new("Static prefix must be an absolute URL path")
       end
@@ -26,6 +26,9 @@ module Runcobo
       end
       path = File.join(@directory, relative.lchop('/'))
       return missing(context) unless File.file?(path) && allowed_file?(path)
+      if cache_control = @cache_control
+        context.response.headers["Cache-Control"] = cache_control
+      end
       super
     end
 
@@ -46,6 +49,7 @@ module Runcobo
     end
 
     private def missing(context) : Nil
+      context.response.headers.delete("Cache-Control") if @cache_control
       %w(Content-Encoding Content-Length ETag Last-Modified).each { |name| context.response.headers.delete(name) }
       if context.request.method == "HEAD"
         context.response.status_code = 404

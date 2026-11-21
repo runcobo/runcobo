@@ -49,6 +49,14 @@ module Runcobo
       @context
     end
 
+    # Explicitly send an empty response. The action chooses when to use this;
+    # other renderers do not suppress output based on the request method or status.
+    def render_empty(*, status_code : Int32 = 200, content_type : String? = nil) : HTTP::Server::Context
+      @context.response.status_code = status_code
+      @context.response.content_type = content_type if content_type
+      @context
+    end
+
     # Renders Plain with "text/plain" Content-Type.
     #
     # ```
