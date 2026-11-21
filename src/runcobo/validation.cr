@@ -127,7 +127,11 @@ module Runcobo
 
     protected def validate(contract : T, *, source : Symbol = :request) forall T
       data = contract_input(source)
-      result = data.is_a?(JSON::Any) ? contract.from_json(data) : contract.from_params(data)
+      result = case data
+               when RequestValidation::SourcedInput then contract.from_sources(data)
+               when JSON::Any                       then contract.from_json(data)
+               else                                      contract.from_params(data)
+               end
       unless result.errors.empty?
         raise Failure.new(result.errors.map { |error| Issue.new(source.to_s, error) })
       end
@@ -139,7 +143,7 @@ module Runcobo
 
     private def contract_input(source : Symbol)
       case source
-      when :request then request.runcobo_input.merged(max_request_body_size)
+      when :request then request.runcobo_input.contract_input(max_request_body_size)
       when :json    then request.runcobo_input.json(max_request_body_size)
       when :form    then request.runcobo_input.form(max_request_body_size)
       when :query   then request.runcobo_input.query

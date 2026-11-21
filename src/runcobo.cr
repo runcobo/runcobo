@@ -30,7 +30,7 @@ module Runcobo
   def self.start(*,
                  host : String = ENV["HOST"]? || "0.0.0.0",
                  port : Int32 = (ENV["PORT"]? || 3000).to_i,
-                 reuse_port : Bool = !!(ENV["REUSE_PORT"]? || false),
+                 reuse_port : Bool = reuse_port_from_env(ENV["REUSE_PORT"]?),
                  handlers : Array(HTTP::Handler) = Runcobo::Server.default_handlers,
                  cert : String? = ENV["CERT"]?,
                  key : String? = ENV["KEY"]?)
@@ -41,6 +41,14 @@ module Runcobo
     server.cert = cert
     server.key = key
     server.listen
+  end
+
+  def self.reuse_port_from_env(value : String?) : Bool
+    case value
+    when nil, "false" then false
+    when "true"       then true
+    else                   raise ArgumentError.new("REUSE_PORT must be true or false")
+    end
   end
 
   # Pretty prints envs which can be used in Runcobo.

@@ -926,3 +926,12 @@ Add that directory to your shell's command search path before running `runcobo`.
 ## Contributors
 
 - [Shootingfly](https://github.com/shootingfly) - creator and maintainer
+
+Request-level contracts retain field decoding modes when combining sources: query
+and route fields use parameter conversions, while structured body fields retain
+strict native types. Body fields replace query fields and route fields take
+precedence. Validation, constraints and cross-field rules run once on the merged
+input. Explicit source contracts continue to validate only their declared source.
+
+`REUSE_PORT` accepts `true` or `false` and defaults to `false` when absent. Other
+values fail at startup rather than enabling port reuse through string presence.

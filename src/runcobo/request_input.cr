@@ -17,6 +17,7 @@ module Runcobo
     @form : HTTP::Params?
     @json : JSON::Any?
     @merged : HTTP::Params | JSON::Any | Nil
+    @field_modes = {} of String => RequestValidation::Mode
     @multipart_form : HTTP::Params?
     @multipart_files = {} of String => Array(UploadFile)
     @multipart_error : Exception?
@@ -103,6 +104,9 @@ module Runcobo
           unless fields = json(limit, empty_object: true).as_h?
             raise Validation::RequestError.new("json", :expected_object, 422)
           end
+          params.each { |key, _| @field_modes[key] = RequestValidation::Mode::Params }
+          fields.each_key { |key| @field_modes[key] = RequestValidation::Mode::Json }
+          @request.route_params.each_key { |key| @field_modes[key] = RequestValidation::Mode::Params }
           fields = RequestValidation::InputAdapter.params(params).merge(fields)
           @request.route_params.each { |key, value| fields[key] = JSON::Any.new(value) }
           return @merged = JSON::Any.new(fields)
@@ -114,6 +118,11 @@ module Runcobo
       end
       @request.route_params.each { |key, value| params[key] = value }
       @merged = params
+    end
+
+    def contract_input(limit : Int64 = @max_body_size)
+      values = merged(limit)
+      values.is_a?(JSON::Any) ? RequestValidation::SourcedInput.new(values.as_h, @field_modes) : values
     end
 
     def multipart? : Bool
