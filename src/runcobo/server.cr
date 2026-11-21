@@ -1,5 +1,6 @@
 require "http/server"
 require "openssl"
+require "./handlers/request_info_handler"
 
 module Runcobo
   class Server
@@ -20,8 +21,8 @@ module Runcobo
     property shutdown_timeout : Time::Span = 30.seconds
     @requests = RequestTracker.new
 
-    def initialize(@handlers : Array(HTTP::Handler) = Server.default_handlers)
-      @instance = HTTP::Server.new([@requests] + handlers)
+    def initialize(@handlers : Array(HTTP::Handler) = Server.default_handlers, *, @proxy_config : ProxyConfig = ProxyConfig.new)
+      @instance = build_server
     end
 
     # Configure handlers before binding sockets or starting the server.
@@ -30,8 +31,14 @@ module Runcobo
         raise ArgumentError.new("Cannot change handlers after binding the server")
       end
       @handlers = handlers
-      @instance = HTTP::Server.new([@requests] + handlers)
+      @instance = build_server
       handlers
+    end
+
+    private def build_server : HTTP::Server
+      prefix = [@requests] of HTTP::Handler
+      prefix << RequestInfoHandler.new(@proxy_config) unless handlers.any?(RequestInfoHandler)
+      HTTP::Server.new(prefix + handlers)
     end
 
     # Creates a TCPServer listening on `host`:`port`.

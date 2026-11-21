@@ -34,8 +34,9 @@ module Runcobo
                  handlers : Array(HTTP::Handler) = Runcobo::Server.default_handlers,
                  cert : String? = ENV["CERT"]?,
                  key : String? = ENV["KEY"]?,
+                 proxy_config : ProxyConfig = ProxyConfig.new,
                  shutdown_timeout : Time::Span = 30.seconds)
-    server = Runcobo::Server.new(handlers: handlers)
+    server = Runcobo::Server.new(handlers: handlers, proxy_config: proxy_config)
     server.host = host
     server.port = port
     server.reuse_port = reuse_port
