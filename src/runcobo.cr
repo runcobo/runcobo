@@ -33,13 +33,15 @@ module Runcobo
                  reuse_port : Bool = reuse_port_from_env(ENV["REUSE_PORT"]?),
                  handlers : Array(HTTP::Handler) = Runcobo::Server.default_handlers,
                  cert : String? = ENV["CERT"]?,
-                 key : String? = ENV["KEY"]?)
+                 key : String? = ENV["KEY"]?,
+                 shutdown_timeout : Time::Span = 30.seconds)
     server = Runcobo::Server.new(handlers: handlers)
     server.host = host
     server.port = port
     server.reuse_port = reuse_port
     server.cert = cert
     server.key = key
+    server.shutdown_timeout = shutdown_timeout
     server.listen
   end
 

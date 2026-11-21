@@ -939,3 +939,20 @@ values fail at startup rather than enabling port reuse through string presence.
 A certificate and private key must be configured together. Supplying only one
 fails before binding a socket. Response observers can use `headers_sent?` to
 distinguish a failure before headers from an interrupted response stream.
+
+
+Server shutdown stops admission and keeps `listen` blocked until active handlers
+finish, before callers release their dependencies. `shutdown_timeout` defaults to
+30 seconds and can be supplied to `Runcobo.start` or the server instance. Requests
+exceeding the grace period are reported; repeated `close` calls are harmless.
+
+`UploadFile#save` writes to a temporary file beside the destination and renames it
+only after copying succeeds. A failed copy removes its temporary output and
+preserves an existing destination.
+
+Framework logs use the global Crystal logging builder under the `runcobo` source.
+`Log.setup`, `Log.setup_from_env`, and `Log.capture` control both framework and
+application output. `Runcobo.logger` now configures that shared pipeline. The
+native `LogHandler` owns request IDs, elapsed time and completion/failure logs;
+query values are excluded. `request.request_id` is now `String?` to preserve opaque
+incoming request IDs and matches the `X-Request-Id` response header.
