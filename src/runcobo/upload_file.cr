@@ -16,10 +16,15 @@ module Runcobo
         raise ArgumentError.new("Upload destination must differ from its temporary file")
       end
       position = @file.pos
+      temporary = File.tempfile(".runcobo-upload", ".tmp", dir: File.dirname(path))
       begin
         @file.rewind
-        File.open(path, "wb") { |output| IO.copy(@file, output) }
+        IO.copy(@file, temporary)
+        temporary.close
+        File.rename(temporary.path, path)
       ensure
+        temporary.close unless temporary.closed?
+        File.delete?(temporary.path)
         @file.seek(position) unless @file.closed?
       end
     end
