@@ -1,0 +1,5 @@
+version: 2.0
+shards:
+  crsql:
+    git: git@github.com:shootingfly/crsql.git
+    version: 0.1.0+git.commit.b942f51a76cd4b48f1ffc058fe5d0d6df2cad63c

@@ -1,0 +1,6 @@
+name: runcobo_codegen
+version: 0.1.0
+dependencies:
+  crsql:
+    git: git@github.com:shootingfly/crsql.git
+    commit: b942f51a76cd4b48f1ffc058fe5d0d6df2cad63c

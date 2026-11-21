@@ -40,7 +40,7 @@ integration: generate
 
 runcobo: build
 
-test: deps
+test: deps build build-crsql
 	crystal spec
 
 examples-check: deps
