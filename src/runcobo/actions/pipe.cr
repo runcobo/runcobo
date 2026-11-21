@@ -28,8 +28,9 @@ module Runcobo
 
     macro included
       SKIPPED_PIPES = [] of Crystal::Macros::MacroId
-      BEFORE_PIPES = [] of Crystal::Macros::MacroId
-      AFTER_PIPES = [] of Crystal::Macros::MacroId
+      BEFORE_PIPES  = [] of Crystal::Macros::MacroId
+      AFTER_PIPES   = [] of Crystal::Macros::MacroId
+
       macro inherited
         # :nodoc:
         SKIPPED_PIPES = [] of Crystal::Macros::MacroId

@@ -1,21 +1,41 @@
-INSTALL_DIR=/usr/local/bin
-LOCAL_DIR=$(CURDIR)/bin
+INSTALL_DIR ?= /usr/local/bin
+LOCAL_DIR ?= $(CURDIR)/bin
 
-all: install
+.DEFAULT_GOAL := build
+.PHONY: all help deps build runcobo test format format-check check install
+
+all: build
 
 help:
-	@echo 'Install on /usr/local/bin  "sudo make install"'
-	@echo 'Install on /usr/bin        "sudo make install INSTALL_DIR=/usr/bin"'
+	@echo 'make build         Build bin/runcobo locally (default)'
+	@echo 'make test          Install dependencies and run specs'
+	@echo 'make format        Format src and spec'
+	@echo 'make format-check  Check formatting without changing files'
+	@echo 'make check         Run specs, formatting checks and build smoke checks'
+	@echo 'make install       Build and install in INSTALL_DIR (default: /usr/local/bin)'
 
-runcobo:
-	@shards install --production
-	@mkdir -p $(LOCAL_DIR)
-	@rm -f $(LOCAL_DIR)/runcobo
+deps:
+	shards install
 
-	@echo "Building runcobo on $(LOCAL_DIR)"
-	@crystal build -o $(LOCAL_DIR)/runcobo src/cli.cr -p --no-debug
-	@rm -f $(INSTALL_DIR)/runcobo
-	@cp $(LOCAL_DIR)/runcobo $(INSTALL_DIR)/runcobo
-	@echo "Install runcobo on $(INSTALL_DIR)"
+build: deps
+	mkdir -p "$(LOCAL_DIR)"
+	crystal build src/cli.cr --no-debug -o "$(LOCAL_DIR)/runcobo"
 
-install: runcobo | $(INSTALL_DIR)
+runcobo: build
+
+test: deps
+	crystal spec
+
+format:
+	crystal tool format src spec
+
+format-check:
+	crystal tool format --check src spec
+
+check: test format-check build
+	"$(LOCAL_DIR)/runcobo" --version
+	"$(LOCAL_DIR)/runcobo" --help
+
+install: build
+	install -d "$(INSTALL_DIR)"
+	install -m 755 "$(LOCAL_DIR)/runcobo" "$(INSTALL_DIR)/runcobo"
