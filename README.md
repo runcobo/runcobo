@@ -537,6 +537,30 @@ already received. Files persisted by `save` remain; retain a saved file rather
 than a request-owned temporary file for work after the action returns. File
 storage policy, image processing and business validation remain in the application.
 
+# Pagination
+
+`Runcobo::Pagination` holds the page, page size and 64-bit offset used by queries
+and templates. Validate request fields with a contract before constructing it:
+
+```crystal
+pagination = Runcobo::Pagination.new(
+  input.page,
+  input.per_page,
+  default_per_page: 20,
+  max_per_page: 100,
+)
+# Use pagination.offset and pagination.per_page in database queries.
+page_items = pagination.slice(items)
+```
+
+The default page is 1, the default page size is 20 and the maximum page size is
+100. These page size settings can be configured per instance; they must be
+positive and the default must not exceed the maximum. Missing or nonpositive
+pages become 1, pages above `Int32::MAX` are capped, missing or nonpositive page
+sizes use the configured default, and larger sizes use the configured maximum.
+`slice` returns an empty array for a page beyond the list, including very large
+offsets. This normalization does not replace request contract validation.
+
 # Render
 
 ### Configure templates and render the current action
