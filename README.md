@@ -435,13 +435,52 @@ Runcobo 3.0 removes the old parameter mode instead of maintaining two parsers:
   `required :count, Int64, gteq: 2, lteq: 100`. Their error codes, paths and
   parameters pass through the same validation response as custom rules.
 
+# Explicit empty and missing responses
+
+Actions explicitly declare `head` routes and choose their response. Runcobo does
+not fall back from `HEAD` to `GET`, or globally remove response bodies for `HEAD`
+or status 304. Use `render_empty` before writing any output:
+
+```crystal
+class Status::Show < BaseAction
+  get "/status"
+  head "/status"
+
+  call do
+    if request.method == "HEAD"
+      render_empty content_type: "application/json"
+    else
+      render_json({status: "ok"})
+    end
+  end
+end
+```
+
+`render_empty status_code: 304` also returns an empty conditional response when
+chosen by an action. It sets status and optional content type without rendering a
+template or clearing previously written data. Set representation headers such as
+`ETag` and `Content-Length` in the action when needed.
+
+Customize missing routes without an additional middleware class:
+
+```crystal
+Runcobo::RouteNotFoundHandler.new do |context|
+  context.response.status_code = 404
+  context.response.content_type = "application/json"
+  context.response.print(%({"error":"not_found"})) unless context.request.method == "HEAD"
+end
+```
+
+The callback owns the complete missing response, including empty bodies. Without
+a callback, the existing 404 text response is unchanged.
+
 # Static files and uploads
 
 Mount a directory by placing `StaticFiles` before the action router:
 
 ```crystal
 Runcobo.start handlers: [
-  Runcobo::StaticFiles.new("/assets", directory: "public"),
+  Runcobo::StaticFiles.new("/assets", directory: "public", cache_control: "public, max-age=300"),
   Runcobo::RouteHandler.new,
   Runcobo::RouteNotFoundHandler.new,
 ] of HTTP::Handler
@@ -454,7 +493,9 @@ inside the configured directory. A missing directory can be created later.
 Unmatched prefixes and missing files fall through to the next handler; missing
 `HEAD` responses return 404 without a body. Static mounts accept `GET` and `HEAD`,
 with no body sent for `HEAD`. Other methods return 405 with `Allow: GET, HEAD`.
-This does not add implicit `HEAD` routes to actions.
+This does not add implicit `HEAD` routes to actions. The optional `cache_control`
+value is applied only to existing files and their conditional responses, not
+missing files or rejected methods.
 
 Receive files in an ordinary action:
 
