@@ -1,80 +1,44 @@
 require "json"
-require "jbuilder"
-require "water"
+require "../views"
 
 module Runcobo
   module Render
-    # Set layout, support many Template Engines.
-    #
-    # `src/views/layouts/application.jbuilder` must be present.
-    # `src/views/example.jbuilder` must be present.
-    #
-    # ```
-    # class Layout < BaseAction
-    #   layout "application"
-    #
-    #   call do
-    #     render_jbuilder "example"
-    #   end
-    # end
-    # ```
+    # Inherited by child actions; nil disables the default layout.
     macro layout(filename)
       LAYOUT = {{ filename }}
     end
 
-    # Renders Water with "text/html" Content-Type.
-    #
-    # Option `layout`, the layout default to nil
-    # Option `status_code`, rewrite status code for response, default to 200
-    # Option `dir`, rewrite dir of file, default to "src/views/"
-    # Option `layout_dir`, rewrite dir of layout, default to "src/views/layouts/"
-    #
-    # `src/views/layouts/application.water` must be present.
-    # `src/views/renders/example.water` must be present.
-    # ```
-    # class RenderWater < BaseAction
-    #   layout "application"
-    #
-    #   call do
-    #     render_water "renders/example", status_code: 200
-    #   end
-    # end
-    # ```
-    macro render_water(filename, *, layout = "", status_code = 200, dir = "src/views/", layout_dir = "src/views/layouts/")
-      @context.response.content_type = "text/html"
-      @context.response.status_code = {{ status_code }}
-      {% layout_file = layout == "" ? LAYOUT : layout %}
-      {% if layout_file == "" %}
-        Water.embed("{{dir.id}}{{filename.id}}.water", @context.response.output)
-      {% else %}
-        Water.embed("{{dir.id}}{{filename.id}}.water", @context.response.output, "{{layout_dir.id}}{{layout_file.id}}.water")
-      {% end %}
-      @context
+    # Render the current action or a literal template name using the configured engine.
+    macro render(*, layout = :inherit, status_code = 200, dir = nil, layout_dir = nil, engine = nil)
+      render nil, layout: {{layout}}, status_code: {{status_code}}, dir: {{dir}}, layout_dir: {{layout_dir}}, engine: {{engine}}
     end
 
-    # Renders Jbuilder with "application/json" Content-Type.
-    #
-    # `src/views/layouts/application.jbuilder` must be present.
-    # `src/views/renders/example.jbuilder` must be present.
-    # ```
-    # class RenderJbuilder < BaseAction
-    #   layout "application"
-    #
-    #   call do
-    #     render_jbuilder "renders/example", status_code: 200
-    #   end
-    # end
-    # ```
-    macro render_jbuilder(filename, *, layout = "", status_code = 200, dir = "src/views/", layout_dir = "src/views/layouts/")
-      @context.response.content_type = "application/json"
-      @context.response.status_code = {{ status_code }}
-      {% layout_file = layout == "" ? LAYOUT : layout %}
-      {% if layout_file == "" %}
-        Jbuilder.embed("{{dir.id}}{{filename.id}}.jbuilder", @context.response.output)
-      {% else %}
-        Jbuilder.embed("{{dir.id}}{{filename.id}}.jbuilder", @context.response.output, "{{layout_dir.id}}{{layout_file.id}}.jbuilder")
-      {% end %}
-      @context
+    macro render(template, *, layout = :inherit, status_code = 200, dir = nil, layout_dir = nil, engine = nil)
+      ::Runcobo::Views.render {{template}}, action_type: {{@type}}, layout: {{layout}},
+        dir: {{dir}}, layout_dir: {{layout_dir}}, engine: {{engine}}, context: @context, status_code: {{status_code}}
+    end
+
+    # Same conventions as render, without writing the response.
+    macro render_to_string(*, layout = :inherit, dir = nil, layout_dir = nil, engine = nil)
+      render_to_string nil, layout: {{layout}}, dir: {{dir}}, layout_dir: {{layout_dir}}, engine: {{engine}}
+    end
+
+    macro render_to_string(template, *, layout = :inherit, dir = nil, layout_dir = nil, engine = nil)
+      ::Runcobo::Views.render {{template}}, action_type: {{@type}}, layout: {{layout}},
+        dir: {{dir}}, layout_dir: {{layout_dir}}, engine: {{engine}}
+    end
+
+    # Explicit engine entries retain paths relative to the template root.
+    macro render_jbuilder(filename, *, layout = :inherit, status_code = 200, dir = nil, layout_dir = nil)
+      ::Runcobo::Views.render {{filename}}, action_type: {{@type}}, relative_to_action: false,
+        layout: {{layout}}, dir: {{dir}}, layout_dir: {{layout_dir}}, engine: :jbuilder,
+        context: @context, status_code: {{status_code}}
+    end
+
+    macro render_water(filename, *, layout = :inherit, status_code = 200, dir = nil, layout_dir = nil)
+      ::Runcobo::Views.render {{filename}}, action_type: {{@type}}, relative_to_action: false,
+        layout: {{layout}}, dir: {{dir}}, layout_dir: {{layout_dir}}, engine: :water,
+        context: @context, status_code: {{status_code}}
     end
 
     # Renders a value directly without a template.

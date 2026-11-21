@@ -380,6 +380,57 @@ Runcobo 3.0 removes the old parameter mode instead of maintaining two parsers:
 
 # Render
 
+### Configure templates and render the current action
+
+Configure the view root once, before declaring actions:
+
+```crystal
+Runcobo.views "src/actions", engine: :jbuilder,
+  layout_dir: "src/web/templates/layouts"
+
+abstract class AppAction < BaseAction
+  layout "application"
+end
+
+class Notes::Create < AppAction
+  post "/notes"
+  call do
+    title = "Hello"
+    render status_code: 201
+  end
+end
+```
+
+This renders `src/actions/notes/create.jbuilder` with
+`src/web/templates/layouts/application.jbuilder`. Configure `engine: :water`
+to use Water by default. Without configuration the defaults are `src/views`,
+jbuilder, and `src/views/layouts`. The configuration also registers jbuilder
+partials, so a separate `Jbuilder.templates` declaration is unnecessary.
+
+- `render` infers the template from the action's qualified class name.
+- `render :create` or `render "create"` selects a template in the current
+  action namespace. Names containing `/`, such as `"notes/create"`, are relative
+  to the configured root.
+- `dir: "other/templates"` sets an explicit root and skips the action namespace.
+- Layouts inherit from the action class. `layout: "alternative"` overrides one
+  render; `layout: nil` disables it. Declare `layout nil` to disable it for an
+  action class. The existing `layout ""` convention is also supported.
+- `engine: :water` or `engine: :jbuilder` overrides the configured engine.
+
+Use `render_to_string` with the same options to obtain a string without changing
+the response body, status or headers. Inside an action it infers the same path and
+inherits the same layout as `render`. In helpers, provide a root-relative name:
+
+```crystal
+body = Runcobo.render_to_string "notes/partials/event", layout: nil
+```
+
+The helper entry has no action context and defaults to no layout. Templates retain
+access to local variables in the calling scope. Paths, engines and layouts are
+checked at compile time. The explicit `render_jbuilder` and `render_water`
+entries remain available; their template names are relative to the configured
+root, including names without `/`.
+
 ### Render HTML
 ```crystal
 class WaterExample < BaseAction
@@ -442,7 +493,9 @@ end
 
 ### Partial
 
-Register reusable jbuilder templates once with `Jbuilder.templates "src/views"`.
+Register reusable jbuilder templates once with `Runcobo.views "src/views"`
+(or `Jbuilder.templates "src/views"` when using the explicit engine entries
+without view configuration).
 Declare their named locals on the first line and pass those locals explicitly.
 Partials run in separate methods on the current builder, so they do not capture
 or overwrite the action's local variables. Paths and locals are checked at build
