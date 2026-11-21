@@ -33,7 +33,10 @@ module Runcobo
 
     property context : HTTP::Server::Context
     property request : HTTP::Request
-    property raw_body : String?
+
+    def raw_body : String?
+      request.runcobo_input.raw_body
+    end
 
     def initialize(@context : HTTP::Server::Context)
       @request = @context.request
@@ -63,6 +66,8 @@ module Runcobo
         else
           %context
         end
+      rescue %validation_error : Runcobo::Validation::Failure
+        render_validation_errors(%validation_error.issues, status_code: %validation_error.status_code)
       end
     end
   end
