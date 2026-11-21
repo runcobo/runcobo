@@ -139,6 +139,14 @@ module Runcobo
       continue
     end
 
+    protected def upload(name : String) : UploadFile
+      request.runcobo_input.upload(name, max_request_body_size)
+    end
+
+    protected def uploads(name : String) : Array(UploadFile)
+      request.runcobo_input.uploads(name, max_request_body_size)
+    end
+
     # A request-level contract, preserving the library's native Output.
     protected def validate(type : T.class, *, strict = false) forall T
       contract = T.new(unknown_keys: strict ? RequestValidation::UnknownKeys::Reject : RequestValidation::UnknownKeys::Strip)
