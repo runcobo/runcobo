@@ -1,4 +1,5 @@
 require "radix"
+require "./validation"
 require "./actions/router"
 require "./actions/redirector"
 require "./actions/render"
@@ -9,6 +10,9 @@ require "./actions/params/query"
 require "./actions/params/url"
 
 module Runcobo
+  annotation Parameter
+  end
+
   abstract class Action
     LAYOUT = ""
     # Radix Tree for classes inheriated from `BaseAction`
@@ -19,6 +23,7 @@ module Runcobo
     include Runcobo::Redirector
     include Runcobo::Render
     include Runcobo::Pipe
+    include Runcobo::Validation
     include Runcobo::Params::Form
     include Runcobo::Params::Json
     include Runcobo::Params::Query
@@ -32,34 +37,19 @@ module Runcobo
 
     def initialize(@context : HTTP::Server::Context)
       @request = @context.request
-      if @request.body
-        @raw_body = @request.body.not_nil!.gets_to_end
-      end
     end
 
-    def parse_params
-      {__action: self.class.name}.merge(query_params).merge(form_params).merge(json_params).merge(url_params)
-    end
-
-    def query_params
-      NamedTuple.new
-    end
-
-    def url_params
-      NamedTuple.new
-    end
-
-    def form_params
-      NamedTuple.new
-    end
-
-    def json_params
-      NamedTuple.new
+    def validation_response : HTTP::Server::Context?
+      nil
     end
 
     macro call(&body)
       def call
-        params = parse_params
+        %early_result = run_before_request_actions
+        return @context if %early_result.is_a?(Runcobo::Pipe::Byebye)
+        if %validation_response = validation_response
+          return %validation_response
+        end
         %pipe_result = call_before_actions
         if %pipe_result.is_a?(Runcobo::Pipe::Byebye)
           %context = @context

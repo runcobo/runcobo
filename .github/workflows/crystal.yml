@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main, codex/development-foundation]
   workflow_dispatch:
 
 permissions:
@@ -28,8 +28,21 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - name: Check out private request-validation dependency
+        uses: actions/checkout@v7
+        with:
+          repository: shootingfly/request-validation
+          ref: 7d98e3d8c1bd7b8134ecf0198188b686509c5130
+          path: .request-validation
+          ssh-key: ${{ secrets.REQUEST_VALIDATION_SSH_KEY }}
+          persist-credentials: false
+      - name: Use checked-out dependency
+        run: |
+          printf 'dependencies:\n  request_validation:\n    path: "%s/.request-validation"\n' "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/runcobo-shard.override.yml"
       - uses: crystal-lang/install-crystal@v1
         with:
           crystal: ${{ matrix.crystal }}
       - name: Check project
         run: make check
+        env:
+          SHARDS_OVERRIDE: ${{ runner.temp }}/runcobo-shard.override.yml
