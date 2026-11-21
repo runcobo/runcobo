@@ -1,4 +1,5 @@
 require "request_validation"
+require "./request_input"
 
 module Runcobo
   module Validation
@@ -17,13 +18,21 @@ module Runcobo
       end
     end
 
-    class RequestError < Exception
-      getter issue : Issue
+    class Failure < Exception
+      getter issues : Array(Issue)
       getter status_code : Int32
 
-      def initialize(source : String, code : Symbol, @status_code : Int32)
-        super(code.to_s)
+      def initialize(@issues : Array(Issue), @status_code : Int32 = 422)
+        super("Request validation failed")
+      end
+    end
+
+    class RequestError < Failure
+      getter issue : Issue
+
+      def initialize(source : String, code : Symbol, status_code : Int32)
         @issue = Issue.new(source, RequestValidation::Error.new([] of RequestValidation::PathSegment, code))
+        super([@issue], status_code)
       end
     end
 
@@ -52,11 +61,25 @@ module Runcobo
         @{{source.id}}_validation_result ||= begin
           contract = build_{{source.id}}_contract
           {% if source == :json %}
-            contract.from_json(read_validation_body("json"))
+            begin
+              contract.from_json(request.runcobo_input.json(max_request_body_size))
+            rescue error : Runcobo::Validation::RequestError
+              if error.issue.code == :invalid_json
+                RequestValidation::Result({{type}}::Output).failure([
+                  RequestValidation::Error.new(error.issue.path, error.issue.code, error.issue.params),
+                ])
+              else
+                raise Runcobo::Validation::RequestError.new("json", error.issue.code, error.status_code)
+              end
+            end
           {% elsif source == :form %}
-            contract.from_params(HTTP::Params.parse(read_validation_body("form")))
+            begin
+              contract.from_params(request.runcobo_input.form(max_request_body_size))
+            rescue error : Runcobo::Validation::RequestError
+              raise Runcobo::Validation::RequestError.new("form", error.issue.code, error.status_code)
+            end
           {% elsif source == :query %}
-            contract.from_params(HTTP::Params.parse(request.query || ""))
+            contract.from_params(request.runcobo_input.query)
           {% else %}
             contract.from_params(request.route_params)
           {% end %}
@@ -105,44 +128,40 @@ module Runcobo
             return nil if issues.empty?
             status = issues.any? { |issue| issue.code == :invalid_json } ? 400 : 422
             render_validation_errors(issues, status_code: status)
-          rescue error : Runcobo::Validation::RequestError
-            render_validation_errors([error.issue], status_code: error.status_code)
           end
         end
       {% end %}
     end
 
-    @validation_body_loaded = false
+    # Opt in with before_request read_input to check bodies even without a contract.
+    protected def read_input
+      request.runcobo_input.merged(max_request_body_size)
+      continue
+    end
+
+    # A request-level contract, preserving the library's native Output.
+    protected def validate(type : T.class, *, strict = false) forall T
+      contract = T.new(unknown_keys: strict ? RequestValidation::UnknownKeys::Reject : RequestValidation::UnknownKeys::Strip)
+      input = request.runcobo_input.merged(max_request_body_size)
+      result = if input.is_a?(HTTP::Params)
+                 contract.from_params(input)
+               else
+                 contract.from_json(input)
+               end
+      unless result.errors.empty?
+        issues = result.errors.map { |error| Issue.new("request", error) }
+        raise Failure.new(issues)
+      end
+      result.value!
+    end
 
     # Override per action when a larger or smaller request body is required.
     def max_request_body_size : Int64
-      1_048_576_i64
+      request.runcobo_input.max_body_size
     end
 
     protected def render_validation_errors(issues : Array(Validation::Issue), *, status_code : Int32) : HTTP::Server::Context
       render_json({errors: issues}, status_code: status_code)
-    end
-
-    private def read_validation_body(source : String) : String
-      return @raw_body || "" if @validation_body_loaded
-      media_type = request.headers["Content-Type"]?.try(&.split(';', 2).first.strip.downcase)
-      supported = if source == "json"
-                    media_type == "application/json" || !!(media_type && media_type.starts_with?("application/") && media_type.ends_with?("+json"))
-                  else
-                    media_type == "application/x-www-form-urlencoded"
-                  end
-      raise Validation::RequestError.new(source, :unsupported_media_type, 415) unless supported
-
-      limit = max_request_body_size
-      raise ArgumentError.new("max_request_body_size must be positive") unless limit > 0
-      buffer = IO::Memory.new
-      if body = request.body
-        IO.copy(body, buffer, limit + 1)
-        raise Validation::RequestError.new(source, :body_too_large, 413) if buffer.size > limit
-      end
-      @raw_body = buffer.to_s
-      @validation_body_loaded = true
-      @raw_body.not_nil!
     end
   end
 end

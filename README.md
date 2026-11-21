@@ -258,6 +258,54 @@ end
 
 # Request contracts
 
+### Validate directly inside an action
+
+For a request-level contract, call `validate` in the action body:
+
+```crystal
+class Authors::Create < BaseAction
+  post "/authors"
+
+  call do
+    input = validate(CreateAuthorContract)
+    render_json({name: input.name, bio: input.bio}, status_code: 201)
+  end
+end
+```
+
+This returns the contract's native `Output`. Unknown fields are stripped by
+default; use `validate(CreateAuthorContract, strict: true)` to reject them.
+Failures raise `Runcobo::Validation::Failure`, unwind the action body, and reach
+`render_validation_errors`. Code after a failed validation and `after` filters
+do not run. Programming errors in rules continue to propagate normally.
+
+Request-level input combines query fields, ordinary body fields and route
+fields. Structured body fields replace same-named query fields; route fields
+replace either. Ordinary form values append to query values, so repeated scalar
+fields remain errors. Query and form requests use native `from_params`
+conversions. Requests with a structured body use `from_json` for the combined
+object: query and route values remain strings in that mode. Use the separate
+source contracts below when sources need independent conversion or validation.
+An empty structured body is treated as an empty object for this entry.
+
+To check body format even on actions without a contract, opt in after your
+authentication filter:
+
+```crystal
+abstract class AppAction < BaseAction
+  before_request authenticate
+  before_request read_input
+end
+```
+
+`read_input` checks format and caches input; `validate(Contract)` checks fields.
+No empty contract is needed. `skip read_input` skips inherited preparation for
+an unconditional endpoint. Read-only `GET` and `HEAD` requests ignore the body;
+multipart bodies are left for an existing multipart consumer. This entry does
+not add multipart validation support.
+
+### Declare separate source contracts
+
 Declare a `RequestValidation::Contract` and bind it to the action's input source.
 Runcobo loads request-validation through the normal entry point. Installing the
 framework requires read access to the private `shootingfly/request-validation`
@@ -297,13 +345,11 @@ are validated separately and their errors are collected together; same-named
 fields do not overwrite each other. Results are cached only on the current
 action instance, so repeated access does not rerun rules or reread the body.
 
-Contracts currently support top-level `String`, `Int32`, `Int64`, `Float64`,
-and `Bool` fields. Optional fields may be missing; explicit null requires
+Contracts support `String`, `Int32`, `Int64`, `Float64`, `Bool`, `JSON::Any`,
+scalar arrays and nested contracts. Optional fields may be missing; explicit null requires
 `nullable: true`. Use the generated `field_present?` accessor to distinguish
 missing fields from explicit null when updating records. Required strings can
-still be empty; add a rule when blank strings are invalid. Nested objects and
-arrays are not currently supported. Add that capability to request-validation
-before migrating endpoints that require it.
+still be empty; add a constraint or rule when blank strings are invalid.
 
 Query, path and form values use the contract's string conversions. Contract
 booleans accept only `true` and `false`, and repeated scalar query/form fields
@@ -340,8 +386,16 @@ accepted. Multipart forms are not supported by this integration.
 Contract bodies are read lazily and limited to 1,048,576 bytes by default,
 including bodies without a content length. Exceeding the limit returns 413.
 Override `max_request_body_size : Int64` on an action to change this limit.
-Body reading occurs only for declared body contracts; it does not happen in
-the action constructor.
+Reading starts when a body contract, direct validation, `read_input`, or explicit
+middleware buffering needs it; it does not happen in the action constructor.
+
+Both contract styles and `read_input` share `request.runcobo_input`: raw bytes,
+parsed query/form fields and parsed structured input are cached per request.
+Middleware can set `request.runcobo_input.max_body_size` and call `body` to enforce
+a limit using the same buffer. The request body is replayable for existing body
+consumers. Declared contract results are cached per action; explicit `validate`
+calls run their contracts against the cached input on each call. There is no
+second parser or additional coercion layer.
 
 The action body and existing `before`/`after` filters run only after validation
 succeeds. For authentication or other checks that must run before body reading,
