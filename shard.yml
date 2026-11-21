@@ -11,7 +11,7 @@ license: MIT
 dependencies:
   jbuilder:
     github: shootingfly/jbuilder
-    commit: 156d412512cc4a1eccd969035aa4d0539ebe9bd6
+    commit: 170027493696457657ab6ff570aff0c48e1f6f03
   radix:
     github: luislavena/radix
   water:
