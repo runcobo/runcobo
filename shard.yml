@@ -18,7 +18,7 @@ dependencies:
     github: shootingfly/water
   request_validation:
     git: git@github.com:shootingfly/request-validation.git
-    commit: 17cf6a4bc0c18aa378ddd17c2285e09365e2e1ec
+    commit: cfe5fb86c9a38fa782f8307be1a9371a4ceae87f
 
 development_dependencies:
   pg:

@@ -178,6 +178,18 @@ describe "request-level contracts" do
     JSON.parse(response.body)["tags"].as_a.map(&.as_s).should eq(%w(one two))
   end
 
+  it "retains decoding modes when query, body and route fields merge" do
+    response = native_input_request("POST", "/native_input?id=12&active=false", %({"label":null}))
+    response.status_code.should eq(200)
+    JSON.parse(response.body)["id"].as_i.should eq(12)
+    JSON.parse(response.body)["active"].as_bool.should be_false
+    response = native_input_request("POST", "/native_input/23?id=12", %({"id":"bad","active":false}))
+    response.status_code.should eq(200)
+    JSON.parse(response.body)["id"].as_i.should eq(23)
+    native_input_request("POST", "/native_input?id=12", %({"id":"23"})).status_code.should eq(422)
+    native_input_request("POST", "/native_input?id=1&id=2", %({"label":"x"})).status_code.should eq(422)
+  end
+
   it "strips unknown fields by default and rejects them explicitly" do
     native_input_request("POST", "/native_input", %({"id":12,"extra":true})).status_code.should eq(200)
     response = native_input_request("POST", "/native_input/strict", %({"id":12,"extra":true}))
