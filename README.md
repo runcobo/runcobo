@@ -935,3 +935,7 @@ input. Explicit source contracts continue to validate only their declared source
 
 `REUSE_PORT` accepts `true` or `false` and defaults to `false` when absent. Other
 values fail at startup rather than enabling port reuse through string presence.
+
+A certificate and private key must be configured together. Supplying only one
+fails before binding a socket. Response observers can use `headers_sent?` to
+distinguish a failure before headers from an interrupted response stream.
