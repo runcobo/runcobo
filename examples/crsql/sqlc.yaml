@@ -1,0 +1,15 @@
+version: "2"
+plugins:
+  - name: crystal
+    process:
+      cmd: crsql
+      format: json
+sql:
+  - engine: postgresql
+    schema: db/schema.sql
+    queries: db/queries.sql
+    codegen:
+      - plugin: crystal
+        out: src/db
+        options:
+          module: CrSQLExample::Store

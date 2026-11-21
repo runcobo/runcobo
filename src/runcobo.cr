@@ -34,11 +34,10 @@ module Runcobo
                  handlers : Array(HTTP::Handler) = Runcobo::Server.default_handlers,
                  cert : String? = ENV["CERT"]?,
                  key : String? = ENV["KEY"]?)
-    server = Runcobo::Server.new
+    server = Runcobo::Server.new(handlers: handlers)
     server.host = host
     server.port = port
     server.reuse_port = reuse_port
-    server.handlers = handlers
     server.cert = cert
     server.key = key
     server.listen

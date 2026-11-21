@@ -18,3 +18,11 @@ dependencies:
   request_validation:
     git: git@github.com:shootingfly/request-validation.git
     commit: 7d98e3d8c1bd7b8134ecf0198188b686509c5130
+
+development_dependencies:
+  pg:
+    github: will/crystal-pg
+    version: ~> 0.31.0
+  crsql:
+    git: git@github.com:shootingfly/crsql.git
+    commit: 21a76cdadc3bdeff7315de39414f956de8f23002

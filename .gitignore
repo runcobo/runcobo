@@ -14,3 +14,8 @@ package-lock.json
 /shard.lock
 /.request-validation/
 /shard.override.yml
+/.crsql/
+/examples/crsql/lib/
+/examples/crsql/bin/
+/examples/crsql/.shards/
+/examples/crsql/shard.override.yml
