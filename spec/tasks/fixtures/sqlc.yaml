@@ -1,0 +1,16 @@
+version: "2"
+plugins:
+  - name: crystal
+    process:
+      cmd: crsql
+      format: json
+sql:
+  - engine: postgresql
+    schema: db/migrations
+    queries: db/queries
+    codegen:
+      - plugin: crystal
+        out: src/persistence/generated
+        options:
+          module: Sample::Store
+          emit_table_models: true

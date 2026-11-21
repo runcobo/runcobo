@@ -927,6 +927,107 @@ Custom handlers work with `Runcobo.start(handlers: ...)` and
 are bound. See the example for setup, schema initialization, generation,
 running requests, and dedicated-database tests.
 
+## Project development commands
+
+The `runcobo` executable includes local database management, migration verification,
+structure snapshots and native crsql generation. These commands read `runcobo.yml`;
+the running application does not read that file or load the development tools.
+Build the executable from an application's installed framework dependency:
+
+```sh
+shards install --frozen
+mkdir -p bin
+crystal build lib/runcobo/src/cli.cr -o bin/runcobo
+```
+
+Create a development-only `runcobo.yml` (no production credentials):
+
+```yaml
+name: example
+database_prefix: example
+database_user: example
+database_port: 55439
+# Optional application commands and environment:
+seed_command: [crystal, run, src/seed.cr]
+server_command: [crystal, run, src/main.cr]
+development_environment:
+  HOST: "127.0.0.1"
+  PORT: "3000"
+# Optional: create a private, persistent local signing secret.
+secret_environment: JWT_SECRET
+public_base_environment: PUBLIC_BASE_URL
+```
+
+The PostgreSQL tools manage only `example_development` and `example_test` on a
+loopback host. They never use `DATABASE_URL` to select a development or test database;
+explicit overrides are `DEVELOPMENT_DATABASE_URL` and `TEST_DATABASE_URL`, validated
+against the same host and database restrictions. The owned cluster, logs and secret
+live under `.local/`; add `/.local/`, `/bin/` and `/db/schema.snapshot.sql` to the
+application's ignore file. PostgreSQL server and client programs must be on the
+command search path. An existing cluster requires the matching ownership marker.
+
+```sh
+bin/runcobo db prepare development  # Create the local database and apply migrations
+bin/runcobo db seed development     # Run the optional seed command
+bin/runcobo dev                     # Prepare, seed and start the configured server
+bin/runcobo db migrate test
+bin/runcobo db rollback test        # Undo the most recent migration
+bin/runcobo db verify               # Verify rollback and replay in a temporary test schema
+bin/runcobo db snapshot             # Read-only db/schema.snapshot.sql, never an input
+bin/runcobo generate
+bin/runcobo generate --check        # Generate in a temporary directory and compare
+bin/runcobo crsql --help            # Forward arguments to the default generator
+```
+
+Keep structure changes in `db/migrations/YYYYMMDDHHMMSS_description.sql`, with one
+matching version in `db/rollbacks/`. Applied files are immutable: the ledger records
+their checksums. Migration and rollback writes share a local process lock and commit
+with their ledger changes in one transaction. `db verify` replays each migration,
+its rollback and the migration again, comparing catalog structure, indexes and
+comments. Replay requires unqualified statements confined to the temporary schema.
+It does not verify restoration of business data. Snapshot export requires `pg_dump`
+compatible with the local database; export and cleanup must succeed before the
+previous snapshot is replaced atomically.
+
+Maintain named queries in `db/queries/` and the native `sqlc.yaml` configuration:
+
+```yaml
+version: "2"
+plugins:
+  - name: crystal
+    process:
+      cmd: crsql
+      format: json
+sql:
+  - engine: postgresql
+    schema: db/migrations
+    queries: db/queries
+    codegen:
+      - plugin: crystal
+        out: src/persistence/generated
+        options:
+          module: Example::Store
+          emit_table_models: true
+```
+
+Migrations are the only structure source; snapshots are optional generated references.
+The first generator command installs the framework-pinned private crsql dependency
+under `.local/runcobo/codegen/` and compiles `bin/crsql`. Subsequent calls reuse it;
+a framework toolchain change triggers a rebuild. This requires private repository
+read access, Crystal, Shards and sqlc 1.31.1. Projects do not need a crsql dependency
+in their application manifest. The framework distributes only a pinned dependency
+manifest, not private generator source. Compiled applications need only their
+generated queries and database driver, without the generator or development cache.
+
+Configuration also accepts `migration_directory`, `rollback_directory`,
+`generator_config`, `generator_inputs`, `generator_binary`, `generated_directory`
+and `snapshot_path`. Paths are relative to the project root. If paths change,
+keep the native `sqlc.yaml` inputs/output and `generator_inputs` consistent.
+`--root PATH` selects another project directory. For custom development integrations,
+`require "runcobo/tasks"` exposes `Runcobo::Tasks` without loading application actions
+or server code. Business conventions and migration acceptance reports belong in
+the consuming project, outside the framework commands.
+
 ## Contributing
 
 ### Local development
@@ -961,7 +1062,7 @@ They use a temporary dependency override, without embedding credentials in the
 shard manifest. Full checks on forks need equivalent private-repository access;
 GitHub does not expose upstream secrets to fork pull requests.
 
-`make check` installs dependencies, runs the specs, compiles the example application,
+`make check` installs dependencies, builds the framework and development generator, runs the specs, compiles the example application,
 checks formatting in `src` and `spec`, builds `bin/runcobo`, and checks its `--version` and `--help`
 commands. It does not install anything into system directories. The same
 command runs for pushes and pull requests targeting `main`. Automated checks

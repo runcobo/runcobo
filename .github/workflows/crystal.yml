@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: shootingfly/crsql
-          ref: 21a76cdadc3bdeff7315de39414f956de8f23002
+          ref: b942f51a76cd4b48f1ffc058fe5d0d6df2cad63c
           path: .crsql
           ssh-key: ${{ secrets.CRSQL_SSH_KEY }}
           persist-credentials: false

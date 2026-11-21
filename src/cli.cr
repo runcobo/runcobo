@@ -1,52 +1,30 @@
-require "option_parser"
 require "./runcobo/version"
 require "./commands/*"
+require "./tasks"
 
-module Runcobo
-  module Cli
-    def self.display_help_and_exit(opts)
-      puts <<-HELP
-        runcobo [<commands>...] [<arguments>...]
-
-        Commands:
-          routes                      - Print all routes of the app.
-          version                     - Print the current version of the runcobo.
-          help                        - Print usage synopsis.
-
-        Options:
-      HELP
-      puts opts
-      exit
-    end
-
-    def self.display_version_and_exit
+module Runcobo::Cli
+  def self.run(arguments = ARGV)
+    case arguments.first?
+    when "--version", "-v", "version"
+      raise ArgumentError.new("Unexpected arguments") unless arguments.size == 1
       puts "Runcobo #{Runcobo::VERSION}"
-      exit
-    end
-
-    def self.run
-      path = Dir.current
-      OptionParser.parse(ARGV) do |opts|
-        opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
-        opts.on("-v", "--version", "Print the current version of the runcobo.") { self.display_version_and_exit }
-        opts.unknown_args do |args, options|
-          case args[0]?
-          when "routes"
-            Runcobo::Commands::Routes.run(path)
-          when "version"
-            display_version_and_exit
-          else
-            display_help_and_exit(opts)
-          end
-        end
-      end
+    when nil, "--help", "-h", "help"
+      puts "Usage: runcobo [--root PATH] COMMAND [arguments...]"
+      puts "  routes                      Print application routes"
+      puts "  version                     Print the framework version"
+      puts Tasks::Command::HELP
+    when "routes"
+      raise ArgumentError.new("Unexpected arguments") unless arguments.size == 1
+      Commands::Routes.run(Dir.current)
+    else
+      Tasks::Command.run(arguments)
     end
   end
 end
 
 begin
   Runcobo::Cli.run
-rescue ex : OptionParser::InvalidOption
-  puts ex.message
-  exit 1
+rescue ex
+  STDERR.puts(ex.message)
+  exit(ex.is_a?(Runcobo::Tasks::CommandError) && ex.exit_code > 0 ? ex.exit_code : 1)
 end
