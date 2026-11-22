@@ -4,9 +4,15 @@ require "./tasks"
 
 module Runcobo::Cli
   def self.run(arguments = ARGV)
-    case arguments.first?
+    args = arguments.dup
+    root = Path[Dir.current]
+    if args.first? == "--root"
+      args.shift
+      root = Path[args.shift? || raise ArgumentError.new("--root requires a path")].expand
+    end
+    case args.first?
     when "--version", "-v", "version"
-      raise ArgumentError.new("Unexpected arguments") unless arguments.size == 1
+      raise ArgumentError.new("Unexpected arguments") unless args.size == 1
       puts "Runcobo #{Runcobo::VERSION}"
     when nil, "--help", "-h", "help"
       puts "Usage: cobo [--root PATH] COMMAND [arguments...]"
@@ -14,10 +20,9 @@ module Runcobo::Cli
       puts "  version                     Print the framework version"
       puts Tasks::Command::HELP
     when "routes"
-      raise ArgumentError.new("Unexpected arguments") unless arguments.size == 1
-      Commands::Routes.run(Dir.current)
+      exit Commands::Routes.run(root, args[1..])
     else
-      Tasks::Command.run(arguments)
+      Tasks::Command.run(args, root)
     end
   end
 end

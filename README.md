@@ -27,6 +27,28 @@ cobo [--root PATH] COMMAND [arguments...]
   --help                      Show all commands
 ```
 
+### Route inspection
+
+`cobo routes` compiles and loads `src/app.cr` to inspect registered actions. It
+also supports the legacy `src/runcobo.cr` layout, including `src/actions/`.
+For another layout, select the file that registers actions with `--require`.
+The command does not select `src/main.cr`, which normally starts the server.
+
+```sh
+bin/cobo routes
+bin/cobo --root ../another-app routes
+bin/cobo routes --require src/route_loader.cr
+bin/cobo routes --no-color > routes.txt
+```
+
+The table displays method, path and action columns with a route count. Colors
+are enabled for terminal output, disabled for redirected output, `NO_COLOR`,
+or a `dumb` terminal, and can be overridden with `--color` or `--no-color`.
+Route registration order and complete paths/action names are preserved.
+Temporary inspection files have unique names and are removed after success or
+compilation failure; existing project files are not overwritten. Projects do
+not need database tool configuration to list routes.
+
 ### Project Architecture
 
     lib/                # Library
