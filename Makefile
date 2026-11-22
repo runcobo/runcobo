@@ -7,7 +7,7 @@ LOCAL_DIR ?= $(CURDIR)/bin
 all: build
 
 help:
-	@echo 'make build         Build bin/runcobo locally (default)'
+	@echo 'make build         Build bin/cobo locally (default)'
 	@echo 'make test          Install dependencies and run specs'
 	@echo 'make examples-check Compile the example applications without linking'
 	@echo 'make generate      Generate the crsql example queries (requires sqlc)'
@@ -23,7 +23,7 @@ deps:
 
 build: deps
 	mkdir -p "$(LOCAL_DIR)"
-	crystal build src/cli.cr --no-debug -o "$(LOCAL_DIR)/runcobo"
+	crystal build src/cli.cr --no-debug -o "$(LOCAL_DIR)/cobo"
 
 build-crsql: deps
 	mkdir -p "$(LOCAL_DIR)"
@@ -54,9 +54,9 @@ format-check:
 	crystal tool format --check src spec examples/crsql/src examples/crsql/spec
 
 check: test examples-check format-check build
-	"$(LOCAL_DIR)/runcobo" --version
-	"$(LOCAL_DIR)/runcobo" --help
+	"$(LOCAL_DIR)/cobo" --version
+	"$(LOCAL_DIR)/cobo" --help
 
 install: build
 	install -d "$(INSTALL_DIR)"
-	install -m 755 "$(LOCAL_DIR)/runcobo" "$(INSTALL_DIR)/runcobo"
+	install -m 755 "$(LOCAL_DIR)/cobo" "$(INSTALL_DIR)/cobo"

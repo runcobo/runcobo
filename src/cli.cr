@@ -9,7 +9,7 @@ module Runcobo::Cli
       raise ArgumentError.new("Unexpected arguments") unless arguments.size == 1
       puts "Runcobo #{Runcobo::VERSION}"
     when nil, "--help", "-h", "help"
-      puts "Usage: runcobo [--root PATH] COMMAND [arguments...]"
+      puts "Usage: cobo [--root PATH] COMMAND [arguments...]"
       puts "  routes                      Print application routes"
       puts "  version                     Print the framework version"
       puts Tasks::Command::HELP

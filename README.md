@@ -15,17 +15,16 @@ on the tagged jbuilder `1.1.0` and private request-validation `0.1.0` releases.
 
 ### Commands
 
-```shell
-runcobo [<commands>...] [<arguments>...]
+```text
+cobo [--root PATH] COMMAND [arguments...]
 
-  Commands:
-    routes                      - Print all routes of the app.
-    version                     - Print the current version of the runcobo.
-    help                        - Print usage synopsis.
-
-  Options:
-    -h, --help                       Print usage synopsis.
-    -v, --version                    Print the current version of the runcobo.
+  routes                      Print application routes
+  version                     Print the Runcobo framework version
+  dev                         Prepare and start the development server
+  db                          Manage local databases and migrations
+  generate [--check]          Generate or verify typed queries
+  crsql [arguments...]        Run the default generator
+  --help                      Show all commands
 ```
 
 ### Project Architecture
@@ -74,7 +73,7 @@ The manifest uses the repository's secure-shell Git address.
 git clone https://github.com/runcobo/runcobo.git
 cd runcobo
 make build
-./bin/runcobo --version
+./bin/cobo --version
 # Optional installation into a writable directory:
 make install INSTALL_DIR="$HOME/.local/bin"
 ```
@@ -929,15 +928,17 @@ running requests, and dedicated-database tests.
 
 ## Project development commands
 
-The `runcobo` executable includes local database management, migration verification,
+The `cobo` executable includes local database management, migration verification,
 structure snapshots and native crsql generation. These commands read `runcobo.yml`;
 the running application does not read that file or load the development tools.
-Build the executable from an application's installed framework dependency:
+The framework, shard name and `runcobo.yml` configuration keep the Runcobo name.
+Existing Make targets, including `make runcobo`, remain available. Build the
+executable from an application's installed framework dependency:
 
 ```sh
 shards install --frozen
 mkdir -p bin
-crystal build lib/runcobo/src/cli.cr -o bin/runcobo
+crystal build lib/runcobo/src/cli.cr -o bin/cobo
 ```
 
 Create a development-only `runcobo.yml` (no production credentials):
@@ -967,16 +968,16 @@ application's ignore file. PostgreSQL server and client programs must be on the
 command search path. An existing cluster requires the matching ownership marker.
 
 ```sh
-bin/runcobo db prepare development  # Create the local database and apply migrations
-bin/runcobo db seed development     # Run the optional seed command
-bin/runcobo dev                     # Prepare, seed and start the configured server
-bin/runcobo db migrate test
-bin/runcobo db rollback test        # Undo the most recent migration
-bin/runcobo db verify               # Verify rollback and replay in a temporary test schema
-bin/runcobo db snapshot             # Read-only db/schema.snapshot.sql, never an input
-bin/runcobo generate
-bin/runcobo generate --check        # Generate in a temporary directory and compare
-bin/runcobo crsql --help            # Forward arguments to the default generator
+bin/cobo db prepare development  # Create the local database and apply migrations
+bin/cobo db seed development     # Run the optional seed command
+bin/cobo dev                     # Prepare, seed and start the configured server
+bin/cobo db migrate test
+bin/cobo db rollback test        # Undo the most recent migration
+bin/cobo db verify               # Verify rollback and replay in a temporary test schema
+bin/cobo db snapshot             # Read-only db/schema.snapshot.sql, never an input
+bin/cobo generate
+bin/cobo generate --check        # Generate in a temporary directory and compare
+bin/cobo crsql --help            # Forward arguments to the default generator
 ```
 
 Keep structure changes in `db/migrations/YYYYMMDDHHMMSS_description.sql`, with one
@@ -1063,7 +1064,7 @@ shard manifest. Full checks on forks need equivalent private-repository access;
 GitHub does not expose upstream secrets to fork pull requests.
 
 `make check` installs dependencies, builds the framework and development generator, runs the specs, compiles the example application,
-checks formatting in `src` and `spec`, builds `bin/runcobo`, and checks its `--version` and `--help`
+checks formatting in `src` and `spec`, builds `bin/cobo`, and checks its `--version` and `--help`
 commands. It does not install anything into system directories. The same
 command runs for pushes and pull requests targeting `main`. Automated checks
 also run `make generate-check` and `make integration`; see the database example
@@ -1072,7 +1073,7 @@ for preparing the dedicated test database.
 For individual tasks:
 
 ```shell
-make build         # Build bin/runcobo locally; also the default for make
+make build         # Build bin/cobo locally; also the default for make
 make test          # Install dependencies and run specs
 make examples-check # Compile the example applications without linking
 make generate      # Regenerate the crsql example queries (requires sqlc)
@@ -1094,7 +1095,7 @@ to avoid requiring elevated permissions:
 make install INSTALL_DIR="$HOME/.local/bin"
 ```
 
-Add that directory to your shell's command search path before running `runcobo`.
+Add that directory to your shell's command search path before running `cobo`.
 
 ### Submitting changes
 

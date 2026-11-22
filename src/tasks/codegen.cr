@@ -92,7 +92,7 @@ module Runcobo::Tasks
           !File.file?(expected) || !File.file?(actual) || File.read(expected) != File.read(actual)
         end
         unless changed.empty?
-          raise ArgumentError.new("Generated content differed: #{changed.join(", ")}; run runcobo generate to update it")
+          raise ArgumentError.new("Generated content differed: #{changed.join(", ")}; run cobo generate to update it")
         end
       end
       @output.puts "Generated queries are reproducible; source and generated files were not rewritten."

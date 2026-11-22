@@ -40,8 +40,11 @@ describe Runcobo::Tasks::Command do
   it "provides help and version without project configuration and returns failure for unknown commands" do
     runner = Runcobo::Tasks::Runner.new
     Runcobo::Tasks.temporary_directory("task-command-") do |root|
-      executable = (TaskSpec::ROOT / "bin/runcobo").to_s
-      runner.run(executable, ["--help"], chdir: root, capture: true).output.should contain("db snapshot")
+      executable = (TaskSpec::ROOT / "bin/cobo").to_s
+      help = runner.run(executable, ["--help"], chdir: root, capture: true).output
+      help.should contain("Usage: cobo ")
+      help.should contain("db snapshot")
+      help.should contain("runcobo.yml")
       runner.run(executable, ["--version"], chdir: root, capture: true).output.should contain("Runcobo")
       runner.run(executable, ["--root", root.to_s, "db", "migrate", "production"], capture: true, check: false).exit_code.should eq(1)
       runner.run(executable, ["unknown"], chdir: root, capture: true, check: false).exit_code.should eq(1)
