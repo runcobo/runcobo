@@ -15,15 +15,12 @@ TEXT
     end
 
     def generate : Path
-      paths = @database.migration_files.values
+      paths = Migrations.new(@database).files
       raise ArgumentError.new("No migrations found") if paths.empty?
       url = @database.database_url("test")
       source = @schema.replay(url, paths) do |schema|
-        result = @database.runner.run("pg_dump",
-          ["--dbname", url, "--schema-only", "--schema", schema, "--no-owner", "--no-privileges", "--no-password", "--encoding=UTF8"],
-          env: @database.connection_environment, capture: true)
         header = HEADER.sub("db/migrations/", @database.settings.migration_directory.rstrip('/') + "/")
-        header + result.output.gsub(schema, "public")
+        header + @schema.dump(url, schema).gsub(schema, "public")
       end
       destination = @database.settings.root / @database.settings.snapshot_path
       Runcobo::Tasks.atomic_write(destination, source, 0o444)

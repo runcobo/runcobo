@@ -26,6 +26,21 @@ describe Runcobo::Tasks::Config do
 end
 
 describe Runcobo::Tasks::Command do
+  it "shows database help without reading a project configuration" do
+    runner = Runcobo::Tasks::Runner.new
+    Runcobo::Tasks.temporary_directory("task-command-") do |root|
+      executable = (TaskSpec::ROOT / "bin/cobo").to_s
+      help = runner.run(executable, ["db", "--help"], chdir: root, capture: true).output
+      %w(start stop ensure prepare migrate rollback seed verify snapshot).each do |operation|
+        help.should match(/^\s{2}#{operation}\b/m)
+      end
+      help.should contain("development (default) or test")
+      help.should contain("prepare [ENV]     Run ensure, then apply pending migrations")
+      help.should contain("migrate [ENV]     Apply pending migrations to an existing database")
+      Dir.children(root).should be_empty
+    end
+  end
+
   it "rejects invalid operations, kinds and trailing arguments before loading configuration or creating state" do
     Runcobo::Tasks.temporary_directory("task-command-") do |root|
       [["db", "migrate", "production"], ["db", "unknown"], ["db", "snapshot", "development"],

@@ -2,7 +2,7 @@ INSTALL_DIR ?= /usr/local/bin
 LOCAL_DIR ?= $(CURDIR)/bin
 
 .DEFAULT_GOAL := build
-.PHONY: all help deps build build-crsql runcobo test examples-check generate generate-check integration format format-check check install
+.PHONY: all help deps build build-crsql runcobo test examples-check generate generate-check integration format format-check check install install-dbmate
 
 all: build
 
@@ -16,7 +16,7 @@ help:
 	@echo 'make format        Format src and spec'
 	@echo 'make format-check  Check formatting without changing files'
 	@echo 'make check         Run specs, formatting checks and build smoke checks'
-	@echo 'make install       Build and install in INSTALL_DIR (default: /usr/local/bin)'
+	@echo 'make install       Install cobo and dbmate in INSTALL_DIR (default: /usr/local/bin)'
 
 deps:
 	shards install
@@ -57,6 +57,10 @@ check: test examples-check format-check build
 	"$(LOCAL_DIR)/cobo" --version
 	"$(LOCAL_DIR)/cobo" --help
 
-install: build
+install-dbmate:
+	sh scripts/install-dbmate.sh "$(LOCAL_DIR)/runcobo-dbmate"
+
+install: build install-dbmate
 	install -d "$(INSTALL_DIR)"
 	install -m 755 "$(LOCAL_DIR)/cobo" "$(INSTALL_DIR)/cobo"
+	install -m 755 "$(LOCAL_DIR)/runcobo-dbmate" "$(INSTALL_DIR)/runcobo-dbmate"

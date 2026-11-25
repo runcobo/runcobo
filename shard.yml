@@ -8,6 +8,12 @@ crystal: ">= 1.22.0, < 2.0.0"
 
 license: MIT
 
+scripts:
+  postinstall: sh scripts/install-dbmate.sh bin/runcobo-dbmate
+
+executables:
+  - runcobo-dbmate
+
 dependencies:
   jbuilder:
     github: shootingfly/jbuilder

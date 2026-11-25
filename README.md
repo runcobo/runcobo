@@ -96,7 +96,7 @@ git clone https://github.com/runcobo/runcobo.git
 cd runcobo
 make build
 ./bin/cobo --version
-# Optional installation into a writable directory:
+# Install cobo and dbmate into a writable directory:
 make install INSTALL_DIR="$HOME/.local/bin"
 ```
 
@@ -989,7 +989,22 @@ live under `.local/`; add `/.local/`, `/bin/` and `/db/schema.snapshot.sql` to t
 application's ignore file. PostgreSQL server and client programs must be on the
 command search path. An existing cluster requires the matching ownership marker.
 
+`make install` installs `cobo` and the pinned dbmate binary side by side.
+Installing Runcobo as a dependency with `shards install` also puts
+`runcobo-dbmate` in the application's `bin/` directory. The installer downloads
+[dbmate 2.38.2](https://github.com/amacneil/dbmate/releases/tag/v2.38.2) on
+supported macOS and Linux architectures and verifies its checksum. It needs
+`curl` and either `sha256sum` or `shasum`.
+
+`cobo` looks for `runcobo-dbmate` beside its own executable, then for `dbmate`
+on the command search path. If you only need the framework library, use
+`shards install --skip-postinstall --skip-executables` to skip downloading
+and copying dependency tools. If you build `cobo` yourself, keep its output in
+the application's `bin/` directory or provide dbmate 2.38.2 or later on the
+command search path.
+
 ```sh
+bin/cobo db --help              # List database commands and environment defaults
 bin/cobo db prepare development  # Create the local database and apply migrations
 bin/cobo db seed development     # Run the optional seed command
 bin/cobo dev                     # Prepare, seed and start the configured server
@@ -1002,15 +1017,22 @@ bin/cobo generate --check        # Generate in a temporary directory and compare
 bin/cobo crsql --help            # Forward arguments to the default generator
 ```
 
-Keep structure changes in `db/migrations/YYYYMMDDHHMMSS_description.sql`, with one
-matching version in `db/rollbacks/`. Applied files are immutable: the ledger records
-their checksums. Migration and rollback writes share a local process lock and commit
-with their ledger changes in one transaction. `db verify` replays each migration,
-its rollback and the migration again, comparing catalog structure, indexes and
-comments. Replay requires unqualified statements confined to the temporary schema.
-It does not verify restoration of business data. Snapshot export requires `pg_dump`
-compatible with the local database; export and cleanup must succeed before the
-previous snapshot is replaced atomically.
+Keep structure changes in `db/migrations/YYYYMMDDHHMMSS_description.sql`.
+New files use dbmate's `-- migrate:up` and `-- migrate:down` sections in the same
+file. Keep published files immutable. Earlier forward files with matching
+`db/rollbacks/` files are staged together in a temporary directory for dbmate.
+Existing `schema_migrations` versions remain valid. Dbmate records versions only
+and does not verify or update legacy content checksums.
+
+`cobo` passes the validated local connection to dbmate, enables its PostgreSQL
+migration lock and strict version ordering, and disables automatic schema dumps.
+`db verify` applies, rolls back and reapplies each migration with dbmate in a
+temporary schema in the test database. It compares structure exports before
+and after each step, excluding the migration ledger, ownership and privileges.
+Replay requires unqualified, schema-local statements. Verification does not
+check restoration of business data. Both `db verify` and `db snapshot` require
+a compatible `pg_dump`. The snapshot is replaced after export and cleanup
+succeed.
 
 Maintain named queries in `db/queries/` and the native `sqlc.yaml` configuration:
 
@@ -1109,7 +1131,7 @@ make help          # List development commands
 Dependencies and the local dependency lock file (`shard.lock`) are ignored in
 this library repository. Applications should commit their own lock files.
 
-To install the executable explicitly, use `make install`. The default
+To install `cobo` and dbmate explicitly, use `make install`. The default
 installation directory is `/usr/local/bin`; use an existing writable prefix
 to avoid requiring elevated permissions:
 

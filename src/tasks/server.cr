@@ -1,4 +1,4 @@
-require "./schema"
+require "./database"
 
 module Runcobo::Tasks
   class Server

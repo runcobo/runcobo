@@ -2,6 +2,7 @@ require "uri"
 require "http/params"
 require "./config"
 require "./support"
+require "./migrations"
 
 module Runcobo::Tasks
   class Database
@@ -9,7 +10,7 @@ module Runcobo::Tasks
     CONNECTION_OVERRIDES = %w(PGHOST PGHOSTADDR PGPORT PGDATABASE PGSERVICE PGSERVICEFILE PGOPTIONS)
     getter settings : Config, runner : Runner
 
-    def initialize(@settings : Config, @runner = Runner.new, @output : IO = STDOUT)
+    def initialize(@settings : Config, @runner = Runner.new)
       raise ArgumentError.new("Invalid database prefix") unless /\A[a-z_][a-z0-9_]*\z/.matches?(settings.database_prefix)
       raise ArgumentError.new("Invalid database port") unless (1..65535).includes?(settings.database_port)
     end
@@ -50,20 +51,6 @@ module Runcobo::Tasks
       environment.reject { |key, _| CONNECTION_OVERRIDES.includes?(key) }
     end
 
-    def lock_path(url : String) : Path
-      uri = URI.parse(url)
-      identity = "#{uri.port || 5432}:#{uri.path}"
-      directory = Path[Dir.tempdir] / "#{settings.name}-migration-locks-#{LibC.getuid}"
-      Dir.mkdir_p(directory, 0o700)
-      directory / "#{Digest::SHA256.hexdigest(identity)}.lock"
-    end
-
-    def migration_lock(url : String, &)
-      File.open(lock_path(url), "a") do |file|
-        file.flock_exclusive { yield }
-      end
-    end
-
     def psql(url : String, source : String? = nil, *, capture : Bool = true) : Result
       args = ["-X", "--set=ON_ERROR_STOP=1", "--no-password", "--tuples-only", "--no-align", url]
       args.concat(["--command", source]) if source
@@ -84,7 +71,7 @@ module Runcobo::Tasks
       raise ArgumentError.new("Refusing to manage a database cluster without this project ownership marker") unless File.exists?(marker) && File.read(marker) == "#{settings.name}\n"
       status = runner.run("pg_ctl", ["-D", data.to_s, "status"], quiet: true, check: false)
       unless status.exit_code == 0
-        runner.run("pg_ctl", ["-D", data.to_s, "-l", (local / "postgres.log").to_s, "-o", "-h 127.0.0.1 -p #{settings.database_port} -k #{socket}", "start"])
+        runner.run("pg_ctl", ["-D", data.to_s, "-l", (local / "postgres.log").to_s, "-o", "-h 127.0.0.1 -p #{settings.database_port} -k #{Process.quote(socket.to_s)}", "start"])
       end
     end
 
@@ -94,62 +81,8 @@ module Runcobo::Tasks
       runner.run("pg_ctl", ["-D", (local / "postgres").to_s, "stop"])
     end
 
-    def migration_files : Hash(String, Path)
-      files = {} of String => Path
-      Dir.glob((settings.root / settings.migration_directory / "*.sql").to_s).sort.each do |name|
-        path = Path[name]
-        version = path.basename.split('_', 2).first
-        raise ArgumentError.new("Invalid migration name: #{path.basename}") unless /\A\d{14}\z/.matches?(version)
-        raise ArgumentError.new("Duplicate migration version: #{version}") if files.has_key?(version)
-        files[version] = path
-      end
-      files
-    end
-
-    def checksum(path : Path) : String
-      Digest::SHA256.hexdigest(File.read(path))
-    end
-
-    def check_ledger(files : Hash(String, Path), applied : Hash(String, String))
-      applied.each do |version, digest|
-        path = files[version]? || raise ArgumentError.new("Applied migration file is missing: #{version}")
-        if !digest.empty? && digest != checksum(path)
-          raise ArgumentError.new("Applied migration checksum changed: #{path.basename}")
-        end
-      end
-    end
-
-    def migration_ledger(url : String, files : Hash(String, Path)) : Hash(String, String)
-      psql(url, "CREATE TABLE IF NOT EXISTS schema_migrations (version varchar PRIMARY KEY, checksum varchar(64))", capture: false)
-      psql(url, "ALTER TABLE schema_migrations ADD COLUMN IF NOT EXISTS checksum varchar(64)", capture: false)
-      applied = {} of String => String
-      psql(url, "SELECT version || '|' || COALESCE(checksum,'') FROM schema_migrations").output.lines.each do |line|
-        version, digest = line.split('|', 2)
-        applied[version] = digest
-      end
-      check_ledger(files, applied)
-      missing = applied.select { |_, digest| digest.empty? }.keys
-      unless missing.empty?
-        Schema.new(self).verify_existing(url, applied.keys.sort.map { |version| files[version] })
-        updates = missing.map { |version| "UPDATE schema_migrations SET checksum='#{checksum(files[version])}' WHERE version='#{version}'" }
-        psql(url, "BEGIN;#{updates.join(';')};COMMIT;", capture: false)
-      end
-      applied
-    end
-
     def migrate(kind : String)
-      url = database_url(kind)
-      migration_lock(url) { migrate_locked(url) }
-    end
-
-    def migrate_locked(url : String)
-      files = migration_files
-      applied = migration_ledger(url, files)
-      files.each do |version, path|
-        next if applied.has_key?(version)
-        runner.run("psql", ["-X", "--set=ON_ERROR_STOP=1", "--no-password", "--single-transaction", url, "--file", path.to_s, "--command", "INSERT INTO schema_migrations (version,checksum) VALUES ('#{version}','#{checksum(path)}')"], env: connection_environment, quiet: true)
-        @output.puts "Applied #{path.basename}"
-      end
+      Migrations.new(self).run(database_url(kind), "migrate")
     end
 
     def ensure_database(kind : String) : String
@@ -171,19 +104,7 @@ module Runcobo::Tasks
     end
 
     def rollback(kind : String)
-      url = database_url(kind)
-      migration_lock(url) { rollback_locked(url) }
-    end
-
-    def rollback_locked(url : String)
-      migration_ledger(url, migration_files)
-      version = psql(url, "SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1").output.strip
-      return if version.empty?
-      raise ArgumentError.new("Invalid recorded migration version") unless /\A\d{14}\z/.matches?(version)
-      paths = Dir.glob((settings.root / settings.rollback_directory / "#{version}_*.sql").to_s)
-      raise ArgumentError.new("A reviewed rollback file is required") unless paths.size == 1
-      runner.run("psql", ["-X", "--set=ON_ERROR_STOP=1", "--no-password", "--single-transaction", url, "--file", paths.first, "--command", "DELETE FROM schema_migrations WHERE version='#{version}'"], env: connection_environment, quiet: true)
-      @output.puts "Rolled back #{version}"
+      Migrations.new(self).run(database_url(kind), "rollback")
     end
 
     def seed(kind : String)
@@ -195,6 +116,3 @@ module Runcobo::Tasks
     end
   end
 end
-
-# Ledger adoption verifies old schemas through the same migration replay implementation.
-require "./schema"
