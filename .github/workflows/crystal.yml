@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, codex/development-foundation, codex/request-validation]
+    branches: [main, codex/development-foundation, codex/request-validation, codex/development-tasks]
   workflow_dispatch:
 
 permissions:
@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: shootingfly/crsql
-          ref: 21a76cdadc3bdeff7315de39414f956de8f23002
+          ref: b942f51a76cd4b48f1ffc058fe5d0d6df2cad63c
           path: .crsql
           ssh-key: ${{ secrets.CRSQL_SSH_KEY }}
           persist-credentials: false
@@ -70,12 +70,16 @@ jobs:
       - uses: sqlc-dev/setup-sqlc@v4
         with:
           sqlc-version: 1.31.1
+      - name: Install dbmate
+        run: make install-dbmate
       - name: Prepare dedicated test database
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f examples/crsql/db/schema.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'CREATE DATABASE runcobo_tasks_test'
       - name: Check project
         run: make generate-check check integration
         env:
+          RUNCOBO_DBMATE_INTEGRATION_URL: postgres://postgres:postgres@127.0.0.1:5432/runcobo_tasks_test
           SHARDS_OVERRIDE: ${{ runner.temp }}/runcobo-shard.override.yml

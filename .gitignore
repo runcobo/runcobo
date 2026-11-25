@@ -19,3 +19,4 @@ package-lock.json
 /examples/crsql/bin/
 /examples/crsql/.shards/
 /examples/crsql/shard.override.yml
+/.local/

@@ -1,0 +1,5 @@
+require "./tasks/config"
+require "./tasks/server"
+require "./tasks/schema_snapshot"
+require "./tasks/codegen"
+require "./tasks/command"

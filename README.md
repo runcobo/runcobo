@@ -15,18 +15,39 @@ on the tagged jbuilder `1.1.0` and private request-validation `0.1.0` releases.
 
 ### Commands
 
-```shell
-runcobo [<commands>...] [<arguments>...]
+```text
+cobo [--root PATH] COMMAND [arguments...]
 
-  Commands:
-    routes                      - Print all routes of the app.
-    version                     - Print the current version of the runcobo.
-    help                        - Print usage synopsis.
-
-  Options:
-    -h, --help                       Print usage synopsis.
-    -v, --version                    Print the current version of the runcobo.
+  routes                      Print application routes
+  version                     Print the Runcobo framework version
+  dev                         Prepare and start the development server
+  db                          Manage local databases and migrations
+  generate [--check]          Generate or verify typed queries
+  crsql [arguments...]        Run the default generator
+  --help                      Show all commands
 ```
+
+### Route inspection
+
+`cobo routes` compiles and loads `src/app.cr` to inspect registered actions. It
+also supports the legacy `src/runcobo.cr` layout, including `src/actions/`.
+For another layout, select the file that registers actions with `--require`.
+The command does not select `src/main.cr`, which normally starts the server.
+
+```sh
+bin/cobo routes
+bin/cobo --root ../another-app routes
+bin/cobo routes --require src/route_loader.cr
+bin/cobo routes --no-color > routes.txt
+```
+
+The table displays method, path and action columns with a route count. Colors
+are enabled for terminal output, disabled for redirected output, `NO_COLOR`,
+or a `dumb` terminal, and can be overridden with `--color` or `--no-color`.
+Route registration order and complete paths/action names are preserved.
+Temporary inspection files have unique names and are removed after success or
+compilation failure; existing project files are not overwritten. Projects do
+not need database tool configuration to list routes.
 
 ### Project Architecture
 
@@ -74,8 +95,8 @@ The manifest uses the repository's secure-shell Git address.
 git clone https://github.com/runcobo/runcobo.git
 cd runcobo
 make build
-./bin/runcobo --version
-# Optional installation into a writable directory:
+./bin/cobo --version
+# Install cobo and dbmate into a writable directory:
 make install INSTALL_DIR="$HOME/.local/bin"
 ```
 
@@ -927,6 +948,190 @@ Custom handlers work with `Runcobo.start(handlers: ...)` and
 are bound. See the example for setup, schema initialization, generation,
 running requests, and dedicated-database tests.
 
+## Project development commands
+
+The `cobo` executable includes local database management, migration verification,
+structure snapshots and native crsql generation. These commands read `runcobo.yml`;
+the running application does not read that file or load the development tools.
+The framework, shard name and `runcobo.yml` configuration keep the Runcobo name.
+Existing Make targets, including `make runcobo`, remain available. Build the
+executable from an application's installed framework dependency:
+
+```sh
+shards install --frozen
+mkdir -p bin
+crystal build lib/runcobo/src/cli.cr -o bin/cobo
+```
+
+Create a development-only `runcobo.yml` (no production credentials):
+
+```yaml
+name: example
+database_prefix: example
+database_user: example
+database_port: 55439
+# Optional application commands and environment:
+seed_command: [crystal, run, src/seed.cr]
+server_command: [crystal, run, src/main.cr]
+development_environment:
+  HOST: "127.0.0.1"
+  PORT: "3000"
+# Optional: create a private, persistent local signing secret.
+secret_environment: JWT_SECRET
+public_base_environment: PUBLIC_BASE_URL
+```
+
+Local PostgreSQL commands manage only `example_development` and `example_test` on
+a loopback host. They never use `DATABASE_URL` to select a development or test database;
+explicit overrides are `DEVELOPMENT_DATABASE_URL` and `TEST_DATABASE_URL`, validated
+against the same host and database restrictions. The owned cluster, logs and secret
+live under `.local/`; add `/.local/`, `/bin/` and `/db/schema.snapshot.sql` to the
+application's ignore file. PostgreSQL server and client programs must be on the
+command search path. An existing cluster requires the matching ownership marker.
+
+`make install` installs `cobo` and the pinned dbmate binary side by side.
+Installing Runcobo as a dependency with `shards install` also puts
+`runcobo-dbmate` in the application's `bin/` directory. The installer downloads
+[dbmate 2.38.2](https://github.com/amacneil/dbmate/releases/tag/v2.38.2) on
+supported macOS and Linux architectures and verifies its checksum. It needs
+`curl` and either `sha256sum` or `shasum`.
+
+`cobo` looks for `runcobo-dbmate` beside its own executable, then for `dbmate`
+on the command search path. If you only need the framework library, use
+`shards install --skip-postinstall --skip-executables` to skip downloading
+and copying dependency tools. If you build `cobo` yourself, keep its output in
+the application's `bin/` directory or provide dbmate 2.38.2 or later on the
+command search path.
+
+```sh
+bin/cobo db --help              # List database commands and environment defaults
+bin/cobo db prepare development  # Create the local database and apply migrations
+bin/cobo db seed development     # Run the optional seed command
+bin/cobo dev                     # Prepare, seed and start the configured server
+bin/cobo db migrate test
+bin/cobo db status test          # Show applied, pending and missing migrations
+bin/cobo db console test         # Open psql in the local test database
+bin/cobo db rollback test        # Undo the most recent migration
+bin/cobo db verify               # Verify rollback and replay in a temporary test schema
+bin/cobo db snapshot             # Read-only db/schema.snapshot.sql, never an input
+bin/cobo generate
+bin/cobo generate --check        # Generate in a temporary directory and compare
+bin/cobo crsql --help            # Forward arguments to the default generator
+```
+
+Keep structure changes in `db/migrations/YYYYMMDDHHMMSS_description.sql`.
+New files use dbmate's `-- migrate:up` and `-- migrate:down` sections in the same
+file. Keep published files immutable. Earlier forward files with matching
+`db/rollbacks/` files are staged together in a temporary directory for dbmate.
+Existing `schema_migrations` versions remain valid. Dbmate records versions only
+and does not verify or update legacy content checksums.
+
+`cobo` passes the validated local connection to dbmate, enables its PostgreSQL
+migration lock and strict version ordering, and disables automatic schema dumps.
+`db verify` applies, rolls back and reapplies each migration with dbmate in a
+temporary schema in the test database. It compares structure exports before
+and after each step, excluding the migration ledger, ownership and privileges.
+Replay requires unqualified, schema-local statements. Verification does not
+check restoration of business data. Both `db verify` and `db snapshot` require
+a compatible `pg_dump`. The snapshot is replaced after export and cleanup
+succeed.
+
+Use `db status` and `db console` with an existing local database. Both default to
+`development` and accept `test`. Status does not apply migrations and reports an
+error when an applied migration file is missing.
+
+Deployment jobs can also run `db status`, `db wait` and `db migrate` against
+`staging` or `production`. These commands use only the corresponding
+`STAGING_DATABASE_URL` or `PRODUCTION_DATABASE_URL` from the job environment.
+Set an explicit PostgreSQL host and database, and supply certificate settings
+as needed. The default `sslmode=verify-full` verifies the server certificate
+and hostname. Use a direct connection or a session-pooling connection for
+the PostgreSQL migration lock. Use the migration files from the release
+being deployed.
+
+```sh
+bin/cobo db status staging
+bin/cobo db migrate staging --wait-timeout 30s
+bin/cobo db status production
+bin/cobo db migrate production --wait --migration-lock-timeout 2m
+```
+
+`db wait` checks server availability. The target database must already exist
+for `status` and `migrate`. `status --exit-code` exits with status 1 when
+migrations are pending. `--quiet` implies `--exit-code` and suppresses status
+output. Use `--verbose` with `migrate` or `rollback` to see individual statement
+results. Each command documents its options with `--help`.
+
+`db rollback staging` reverses the latest applied migration. Use a corrective
+migration to fix a production schema. dbmate 2.38.2 applies all pending
+migrations in order and only rolls back the latest applied migration. These
+commands have no target-version argument.
+
+`cobo test` runs `crystal spec` from the project root with both database connection
+variables set to the validated test database. Use `cobo test --prepare` to ensure
+the test database exists and apply migrations before testing. Append Crystal
+spec arguments after the command, for example `cobo test spec/models -- --verbose`.
+
+`cobo runner FILE [-- arguments...]` compiles and runs a Crystal script using the
+development environment. `cobo console` opens the Crystal interpreter and
+requires a Crystal installation that provides `crystal i`. Both load
+`application_entry` from `runcobo.yml`, or `src/app.cr` if present. The entry
+should load application code without starting the server. These commands do not
+prepare or seed the database.
+
+Register reusable project tasks in `runcobo.yml`:
+
+```yaml
+tasks:
+  rebuild-search:
+    description: Rebuild the local search index
+    command: [crystal, run, src/jobs/rebuild_search.cr, --]
+```
+
+Use `cobo task list` to discover them and `cobo task run rebuild-search -- books`
+to run one with extra arguments. Commands run from the project root with the
+development environment. Command entries and extra arguments are passed as
+separate arguments to the executable.
+
+Maintain named queries in `db/queries/` and the native `sqlc.yaml` configuration:
+
+```yaml
+version: "2"
+plugins:
+  - name: crystal
+    process:
+      cmd: crsql
+      format: json
+sql:
+  - engine: postgresql
+    schema: db/migrations
+    queries: db/queries
+    codegen:
+      - plugin: crystal
+        out: src/persistence/generated
+        options:
+          module: Example::Store
+          emit_table_models: true
+```
+
+Migrations are the only structure source; snapshots are optional generated references.
+The first generator command installs the framework-pinned private crsql dependency
+under `.local/runcobo/codegen/` and compiles `bin/crsql`. Subsequent calls reuse it;
+a framework toolchain change triggers a rebuild. This requires private repository
+read access, Crystal, Shards and sqlc 1.31.1. Projects do not need a crsql dependency
+in their application manifest. The framework distributes only a pinned dependency
+manifest, not private generator source. Compiled applications need only their
+generated queries and database driver, without the generator or development cache.
+
+Configuration also accepts `migration_directory`, `rollback_directory`,
+`generator_config`, `generator_inputs`, `generator_binary`, `generated_directory`
+and `snapshot_path`. Paths are relative to the project root. If paths change,
+keep the native `sqlc.yaml` inputs/output and `generator_inputs` consistent.
+`--root PATH` selects another project directory. For custom development integrations,
+`require "runcobo/tasks"` exposes `Runcobo::Tasks` without loading application actions
+or server code. Business conventions and migration acceptance reports belong in
+the consuming project, outside the framework commands.
+
 ## Contributing
 
 ### Local development
@@ -961,8 +1166,8 @@ They use a temporary dependency override, without embedding credentials in the
 shard manifest. Full checks on forks need equivalent private-repository access;
 GitHub does not expose upstream secrets to fork pull requests.
 
-`make check` installs dependencies, runs the specs, compiles the example application,
-checks formatting in `src` and `spec`, builds `bin/runcobo`, and checks its `--version` and `--help`
+`make check` installs dependencies, builds the framework and development generator, runs the specs, compiles the example application,
+checks formatting in `src` and `spec`, builds `bin/cobo`, and checks its `--version` and `--help`
 commands. It does not install anything into system directories. The same
 command runs for pushes and pull requests targeting `main`. Automated checks
 also run `make generate-check` and `make integration`; see the database example
@@ -971,7 +1176,7 @@ for preparing the dedicated test database.
 For individual tasks:
 
 ```shell
-make build         # Build bin/runcobo locally; also the default for make
+make build         # Build bin/cobo locally; also the default for make
 make test          # Install dependencies and run specs
 make examples-check # Compile the example applications without linking
 make generate      # Regenerate the crsql example queries (requires sqlc)
@@ -985,7 +1190,7 @@ make help          # List development commands
 Dependencies and the local dependency lock file (`shard.lock`) are ignored in
 this library repository. Applications should commit their own lock files.
 
-To install the executable explicitly, use `make install`. The default
+To install `cobo` and dbmate explicitly, use `make install`. The default
 installation directory is `/usr/local/bin`; use an existing writable prefix
 to avoid requiring elevated permissions:
 
@@ -993,7 +1198,7 @@ to avoid requiring elevated permissions:
 make install INSTALL_DIR="$HOME/.local/bin"
 ```
 
-Add that directory to your shell's command search path before running `runcobo`.
+Add that directory to your shell's command search path before running `cobo`.
 
 ### Submitting changes
 

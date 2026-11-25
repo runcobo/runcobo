@@ -1,0 +1,70 @@
+[
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test",
+    "allowed": true
+  },
+  {
+    "url": "postgres://localhost/sample_test",
+    "allowed": true
+  },
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test?application_name=review&connect_timeout=3&sslmode=disable",
+    "allowed": true
+  },
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test?dbname=postgres",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test?host=other.example",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test?hostaddr=192.0.2.1",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test?port=5432",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test?service=other",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test?options=-csearch_path%3Dother",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test?db%6eame=postgres",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test?application_name=a&application_name=b",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test?unknown=1",
+    "allowed": false
+  },
+  {
+    "url": "http://localhost/sample_test",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://tester@127.0.0.1:55439/sample_test#ignored",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://localhost/other",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://other.example/sample_test",
+    "allowed": false
+  },
+  {
+    "url": "postgresql://localhost:0/sample_test",
+    "allowed": false
+  }
+]

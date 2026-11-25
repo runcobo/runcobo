@@ -2,12 +2,12 @@ INSTALL_DIR ?= /usr/local/bin
 LOCAL_DIR ?= $(CURDIR)/bin
 
 .DEFAULT_GOAL := build
-.PHONY: all help deps build build-crsql runcobo test examples-check generate generate-check integration format format-check check install
+.PHONY: all help deps build build-crsql runcobo test examples-check generate generate-check integration format format-check check install install-dbmate
 
 all: build
 
 help:
-	@echo 'make build         Build bin/runcobo locally (default)'
+	@echo 'make build         Build bin/cobo locally (default)'
 	@echo 'make test          Install dependencies and run specs'
 	@echo 'make examples-check Compile the example applications without linking'
 	@echo 'make generate      Generate the crsql example queries (requires sqlc)'
@@ -16,14 +16,14 @@ help:
 	@echo 'make format        Format src and spec'
 	@echo 'make format-check  Check formatting without changing files'
 	@echo 'make check         Run specs, formatting checks and build smoke checks'
-	@echo 'make install       Build and install in INSTALL_DIR (default: /usr/local/bin)'
+	@echo 'make install       Install cobo and dbmate in INSTALL_DIR (default: /usr/local/bin)'
 
 deps:
 	shards install
 
 build: deps
 	mkdir -p "$(LOCAL_DIR)"
-	crystal build src/cli.cr --no-debug -o "$(LOCAL_DIR)/runcobo"
+	crystal build src/cli.cr --no-debug -o "$(LOCAL_DIR)/cobo"
 
 build-crsql: deps
 	mkdir -p "$(LOCAL_DIR)"
@@ -40,7 +40,7 @@ integration: generate
 
 runcobo: build
 
-test: deps
+test: deps build build-crsql
 	crystal spec
 
 examples-check: deps
@@ -54,9 +54,13 @@ format-check:
 	crystal tool format --check src spec examples/crsql/src examples/crsql/spec
 
 check: test examples-check format-check build
-	"$(LOCAL_DIR)/runcobo" --version
-	"$(LOCAL_DIR)/runcobo" --help
+	"$(LOCAL_DIR)/cobo" --version
+	"$(LOCAL_DIR)/cobo" --help
 
-install: build
+install-dbmate:
+	sh scripts/install-dbmate.sh "$(LOCAL_DIR)/runcobo-dbmate"
+
+install: build install-dbmate
 	install -d "$(INSTALL_DIR)"
-	install -m 755 "$(LOCAL_DIR)/runcobo" "$(INSTALL_DIR)/runcobo"
+	install -m 755 "$(LOCAL_DIR)/cobo" "$(INSTALL_DIR)/cobo"
+	install -m 755 "$(LOCAL_DIR)/runcobo-dbmate" "$(INSTALL_DIR)/runcobo-dbmate"
