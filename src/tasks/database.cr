@@ -85,6 +85,20 @@ module Runcobo::Tasks
       Migrations.new(self).run(database_url(kind), "migrate")
     end
 
+    def status(kind : String)
+      Migrations.new(self).status(database_url(kind))
+    end
+
+    def console(kind : String)
+      url = database_url(kind)
+      environment = connection_environment
+      if credentials = /\A(postgres(?:ql)?:\/\/[^:\/@]*):([^\/@]*)@/.match(url)
+        environment["PGPASSWORD"] = URI.decode(credentials[2])
+        url = url.sub(credentials[0], credentials[1] + "@")
+      end
+      runner.run("psql", ["-X", "--dbname", url], env: environment, chdir: settings.root, input: Process::Redirect::Inherit)
+    end
+
     def ensure_database(kind : String) : String
       url = database_url(kind)
       if url.starts_with?(managed)

@@ -2,6 +2,14 @@ require "path"
 require "yaml"
 
 module Runcobo::Tasks
+  class ProjectTask
+    include YAML::Serializable
+    include YAML::Serializable::Strict
+
+    getter command : Array(String)
+    getter description : String = ""
+  end
+
   # Development configuration is separate from application runtime configuration.
   class Config
     include YAML::Serializable
@@ -25,6 +33,8 @@ module Runcobo::Tasks
     getter server_command : Array(String) = ["crystal", "run", "src/main.cr"]
     getter development_environment : Hash(String, String) = {} of String => String
     getter public_base_environment : String? = nil
+    getter application_entry : String? = nil
+    getter tasks : Hash(String, ProjectTask) = {} of String => ProjectTask
 
     def initialize(@root : Path,
                    @name : String,
@@ -42,7 +52,9 @@ module Runcobo::Tasks
                    @seed_command : Array(String) = [] of String,
                    @server_command : Array(String) = ["crystal", "run", "src/main.cr"],
                    @development_environment : Hash(String, String) = {} of String => String,
-                   @public_base_environment : String? = nil)
+                   @public_base_environment : String? = nil,
+                   @application_entry : String? = nil,
+                   @tasks : Hash(String, ProjectTask) = {} of String => ProjectTask)
     end
 
     def self.load(root : Path) : self

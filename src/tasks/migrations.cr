@@ -24,6 +24,15 @@ module Runcobo::Tasks
       end
     end
 
+    def status(url : String)
+      # dbmate only needs the filenames to compare versions. This also lets
+      # developers inspect pending migrations before writing their rollback.
+      Runcobo::Tasks.temporary_directory("cobo-status-") do |directory|
+        files.each { |path| File.write(directory / path.basename, "") }
+        execute(url, directory, "status")
+      end
+    end
+
     def stage(directory : Path, path : Path, *, schema_local : Bool = false)
       source = File.read(path)
       unless source.lchop('\u{FEFF}').matches?(/^--\s*migrate:(?:up|down)\b/m)
@@ -52,9 +61,11 @@ module Runcobo::Tasks
                  Process.find_executable(File.join(File.dirname(executable), "runcobo-dbmate"))
                end
       begin
-        @database.runner.run(dbmate || "dbmate", ["--env-file", "/dev/null", "--migrations-dir", directory.to_s,
-                                                  "--migrations-table", TABLE, "--migration-lock", "--no-dump-schema", operation, "--strict"],
-          chdir: settings.root, env: environment)
+        args = ["--env-file", "/dev/null", "--migrations-dir", directory.to_s,
+                "--migrations-table", TABLE, "--no-dump-schema"]
+        args << "--migration-lock" unless operation == "status"
+        args.concat([operation, "--strict"])
+        @database.runner.run(dbmate || "dbmate", args, chdir: settings.root, env: environment)
       rescue error : IO::Error
         raise error if dbmate || Process.find_executable("dbmate", path: environment["PATH"]?, pwd: settings.root)
         raise ArgumentError.new("dbmate was not found. Run make install or install dbmate 2.38.2 or later on PATH")

@@ -31,7 +31,7 @@ describe Runcobo::Tasks::Command do
     Runcobo::Tasks.temporary_directory("task-command-") do |root|
       executable = (TaskSpec::ROOT / "bin/cobo").to_s
       help = runner.run(executable, ["db", "--help"], chdir: root, capture: true).output
-      %w(start stop ensure prepare migrate rollback seed verify snapshot).each do |operation|
+      %w(start stop ensure prepare migrate status rollback seed console verify snapshot).each do |operation|
         help.should match(/^\s{2}#{operation}\b/m)
       end
       help.should contain("development (default) or test")
@@ -43,7 +43,7 @@ describe Runcobo::Tasks::Command do
 
   it "rejects invalid operations, kinds and trailing arguments before loading configuration or creating state" do
     Runcobo::Tasks.temporary_directory("task-command-") do |root|
-      [["db", "migrate", "production"], ["db", "unknown"], ["db", "snapshot", "development"],
+      [["db", "migrate", "production"], ["db", "console", "production"], ["task", "run"], ["db", "unknown"], ["db", "snapshot", "development"],
        ["generate", "--bad"], ["dev", "extra"], ["crsql-build", "extra"], ["unknown"]].each do |args|
         error = expect_raises(ArgumentError) { Runcobo::Tasks::Command.run(args, root) }
         error.message.not_nil!.should_not contain("runcobo.yml")

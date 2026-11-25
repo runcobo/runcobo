@@ -1009,6 +1009,8 @@ bin/cobo db prepare development  # Create the local database and apply migration
 bin/cobo db seed development     # Run the optional seed command
 bin/cobo dev                     # Prepare, seed and start the configured server
 bin/cobo db migrate test
+bin/cobo db status test          # Show applied, pending and missing migrations
+bin/cobo db console test         # Open psql in the local test database
 bin/cobo db rollback test        # Undo the most recent migration
 bin/cobo db verify               # Verify rollback and replay in a temporary test schema
 bin/cobo db snapshot             # Read-only db/schema.snapshot.sql, never an input
@@ -1033,6 +1035,36 @@ Replay requires unqualified, schema-local statements. Verification does not
 check restoration of business data. Both `db verify` and `db snapshot` require
 a compatible `pg_dump`. The snapshot is replaced after export and cleanup
 succeed.
+
+Use `db status` and `db console` with an existing local database. Both default to
+`development` and accept `test`. Status does not apply migrations and reports an
+error when an applied migration file is missing.
+
+`cobo test` runs `crystal spec` from the project root with both database connection
+variables set to the validated test database. Use `cobo test --prepare` to ensure
+the test database exists and apply migrations before testing. Append Crystal
+spec arguments after the command, for example `cobo test spec/models -- --verbose`.
+
+`cobo runner FILE [-- arguments...]` compiles and runs a Crystal script using the
+development environment. `cobo console` opens the Crystal interpreter and
+requires a Crystal installation that provides `crystal i`. Both load
+`application_entry` from `runcobo.yml`, or `src/app.cr` if present. The entry
+should load application code without starting the server. These commands do not
+prepare or seed the database.
+
+Register reusable project tasks in `runcobo.yml`:
+
+```yaml
+tasks:
+  rebuild-search:
+    description: Rebuild the local search index
+    command: [crystal, run, src/jobs/rebuild_search.cr, --]
+```
+
+Use `cobo task list` to discover them and `cobo task run rebuild-search -- books`
+to run one with extra arguments. Commands run from the project root with the
+development environment. Command entries and extra arguments are passed as
+separate arguments to the executable.
 
 Maintain named queries in `db/queries/` and the native `sqlc.yaml` configuration:
 
