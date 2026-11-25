@@ -25,6 +25,18 @@ if integration_url = ENV["RUNCOBO_DBMATE_INTEGRATION_URL"]?
         status = database.runner.run(executable, ["db", "status", "test"], env: env, chdir: root, capture: true)
         status.output.should contain("[ ] 20261120082720")
         status.output.should contain("[ ] 20261121082720")
+        uri = URI.parse(integration_url)
+        params = HTTP::Params.parse(uri.query || "")
+        params["sslmode"] = "disable" unless params.has_key?("sslmode")
+        uri.query = params.to_s
+        deployment_env = env.merge({"PRODUCTION_DATABASE_URL" => uri.to_s})
+        deployment_status = database.runner.run(executable, ["db", "status", "production", "--quiet"],
+          env: deployment_env, chdir: root, capture: true, check: false)
+        deployment_status.exit_code.should eq(1)
+        deployment_status.output.should be_empty
+        deployment_status.error.should be_empty
+        database.runner.run(executable, ["db", "wait", "production", "--wait-timeout", "5s"],
+          env: deployment_env, chdir: root, capture: true)
         console = database.runner.run(executable, ["db", "console", "test"], env: env, chdir: root,
           input: IO::Memory.new("SELECT current_database();\n"), capture: true)
         console.output.should contain("runcobo_tasks_test")

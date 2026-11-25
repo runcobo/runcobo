@@ -22,6 +22,27 @@ describe Runcobo::Tasks::Database do
     database.connection_environment({"PGHOST" => "remote", "PGDATABASE" => "production", "PATH" => "/bin", "PGPASSWORD" => "fixture"}).should eq({"PATH" => "/bin", "PGPASSWORD" => "fixture"})
   end
 
+  it "uses explicit deployment connections for migration commands without relaxing local database checks" do
+    database = Runcobo::Tasks::Database.new(TaskSpec.settings(TaskSpec::ROOT))
+    staging = "postgresql://migrator:p+a%20ss@staging.example/app?sslmode=require"
+    production = "postgresql://migrator@production.example/app?sslrootcert=%2Fetc%2Fdb.crt"
+    env = {"STAGING_DATABASE_URL" => staging, "PRODUCTION_DATABASE_URL" => production}
+    database.migration_database_url("staging", "rollback", env).should eq(staging)
+    database.migration_database_url("production", "migrate", env).should eq("#{production}&sslmode=verify-full")
+    expect_raises(ArgumentError, "Production rollback") { database.migration_database_url("production", "rollback", env) }
+    expect_raises(ArgumentError, "Unsupported local database kind") { database.database_url("staging", env) }
+    expect_raises(ArgumentError, "Set STAGING_DATABASE_URL") do
+      database.migration_database_url("staging", "migrate", {"DATABASE_URL" => staging})
+    end
+
+    %w(postgres:///example postgres://host postgres://host/example?host=other postgres://host/example?dbname=other
+      postgres://host/example?sslmode= postgres://host/example?sslmode=require&sslmode=prefer postgres://host/example#fragment).each do |url|
+      expect_raises(ArgumentError, "must specify a PostgreSQL host and database") do
+        database.migration_database_url("production", "status", {"PRODUCTION_DATABASE_URL" => url})
+      end
+    end
+  end
+
   it "rejects duplicate and invalid migration versions" do
     Runcobo::Tasks.temporary_directory("migration-spec-") do |root|
       path = TaskSpec.migration(root)
@@ -86,7 +107,7 @@ class PreparationObservingDatabase < Runcobo::Tasks::Database
     database_url(kind)
   end
 
-  def migrate(kind : String)
+  def migrate(kind : String, options = Runcobo::Tasks::Migrations::Options.new)
     steps << "migrate"
   end
 end

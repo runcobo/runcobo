@@ -31,10 +31,11 @@ describe Runcobo::Tasks::Command do
     Runcobo::Tasks.temporary_directory("task-command-") do |root|
       executable = (TaskSpec::ROOT / "bin/cobo").to_s
       help = runner.run(executable, ["db", "--help"], chdir: root, capture: true).output
-      %w(start stop ensure prepare migrate status rollback seed console verify snapshot).each do |operation|
+      %w(start stop ensure prepare migrate status rollback wait seed console verify snapshot).each do |operation|
         help.should match(/^\s{2}#{operation}\b/m)
       end
-      help.should contain("development (default) or test")
+      help.should contain("ENV defaults to development")
+      help.should contain("migrate, status and wait also accept production")
       help.should contain("prepare [ENV]     Run ensure, then apply pending migrations")
       help.should contain("migrate [ENV]     Apply pending migrations to an existing database")
       Dir.children(root).should be_empty
@@ -43,7 +44,8 @@ describe Runcobo::Tasks::Command do
 
   it "rejects invalid operations, kinds and trailing arguments before loading configuration or creating state" do
     Runcobo::Tasks.temporary_directory("task-command-") do |root|
-      [["db", "migrate", "production"], ["db", "console", "production"], ["task", "run"], ["db", "unknown"], ["db", "snapshot", "development"],
+      [["db", "rollback", "production"], ["db", "prepare", "staging"], ["db", "console", "production"], ["task", "run"], ["db", "unknown"], ["db", "snapshot", "development"],
+       ["db", "migrate", "staging", "20261125001234"], ["db", "migrate", "staging", "--url", "ignored"], ["db", "wait", "--wait-timeout"],
        ["generate", "--bad"], ["dev", "extra"], ["crsql-build", "extra"], ["unknown"]].each do |args|
         error = expect_raises(ArgumentError) { Runcobo::Tasks::Command.run(args, root) }
         error.message.not_nil!.should_not contain("runcobo.yml")
@@ -61,7 +63,8 @@ describe Runcobo::Tasks::Command do
       help.should contain("db snapshot")
       help.should contain("runcobo.yml")
       runner.run(executable, ["--version"], chdir: root, capture: true).output.should contain("Runcobo")
-      runner.run(executable, ["--root", root.to_s, "db", "migrate", "production"], capture: true, check: false).exit_code.should eq(1)
+      runner.run(executable, ["db", "migrate", "--help"], chdir: root, capture: true).output.should contain("--migration-lock-timeout")
+      runner.run(executable, ["--root", root.to_s, "db", "rollback", "production"], capture: true, check: false).exit_code.should eq(1)
       runner.run(executable, ["unknown"], chdir: root, capture: true, check: false).exit_code.should eq(1)
       Dir.children(root).should be_empty
     end

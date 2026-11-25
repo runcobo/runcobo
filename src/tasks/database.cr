@@ -6,7 +6,10 @@ require "./migrations"
 
 module Runcobo::Tasks
   class Database
+    LOCAL_KINDS          = %w(development test)
+    DEPLOYMENT_KINDS     = %w(staging production)
     SAFE_OPTIONS         = %w(application_name connect_timeout sslmode)
+    DEPLOYMENT_OPTIONS   = SAFE_OPTIONS + %w(sslrootcert sslcert sslkey sslcrl target_session_attrs)
     CONNECTION_OVERRIDES = %w(PGHOST PGHOSTADDR PGPORT PGDATABASE PGSERVICE PGSERVICEFILE PGOPTIONS)
     getter settings : Config, runner : Runner
 
@@ -24,27 +27,70 @@ module Runcobo::Tasks
     end
 
     def database_url(kind : String, environment = ENV.to_h) : String
-      raise ArgumentError.new("Unsupported local database kind") unless %w(test development).includes?(kind)
+      raise ArgumentError.new("Unsupported local database kind") unless LOCAL_KINDS.includes?(kind)
       key = kind == "test" ? "TEST_DATABASE_URL" : "DEVELOPMENT_DATABASE_URL"
       value = environment[key]? || "#{managed}#{settings.database_prefix}_#{kind}"
       begin
         uri = URI.parse(value)
-        names = Set(String).new
-        query = uri.query || ""
-        options_valid = query.empty? || query.split('&').all? do |pair|
-          !pair.empty? && pair.includes?('=') && !/%(?![0-9a-fA-F]{2})/.matches?(pair)
-        end
-        HTTP::Params.parse(uri.query || "").each do |name, _|
-          options_valid = false unless SAFE_OPTIONS.includes?(name) && names.add?(name)
-        end
-        valid = %w(postgresql postgres).includes?(uri.scheme) && %w(127.0.0.1 localhost).includes?(uri.host) &&
-                uri.path == "/#{settings.database_prefix}_#{kind}" && uri.fragment.nil? &&
-                (uri.port.nil? || (1..65535).includes?(uri.port.not_nil!)) && options_valid
+        valid = postgres_connection?(uri) && %w(127.0.0.1 localhost).includes?(uri.host) &&
+                uri.path == "/#{settings.database_prefix}_#{kind}" && connection_options?(uri, SAFE_OPTIONS)
       rescue URI::Error | ArgumentError
         valid = false
       end
       raise ArgumentError.new("#{key} must identify the dedicated local #{settings.database_prefix}_#{kind} database without connection-target overrides") unless valid
       value
+    end
+
+    def self.validate_migration_kind(kind : String, operation : String)
+      unless LOCAL_KINDS.includes?(kind) || DEPLOYMENT_KINDS.includes?(kind)
+        raise ArgumentError.new("Expected a database environment: development, test, staging or production")
+      end
+      if kind == "production" && operation == "rollback"
+        raise ArgumentError.new("Production rollback is not supported; apply a corrective migration")
+      end
+    end
+
+    def migration_database_url(kind : String, operation : String, environment = ENV.to_h) : String
+      Database.validate_migration_kind(kind, operation)
+      return database_url(kind, environment) if LOCAL_KINDS.includes?(kind)
+
+      key = kind == "staging" ? "STAGING_DATABASE_URL" : "PRODUCTION_DATABASE_URL"
+      value = environment[key]?.try(&.presence) || raise ArgumentError.new("Set #{key} to the #{kind} database connection")
+      begin
+        uri = URI.parse(value)
+        params = HTTP::Params.parse(uri.query || "")
+        sslmode = params["sslmode"]?
+        valid = postgres_connection?(uri) && !value.matches?(/[[:space:][:cntrl:]]|%(?![0-9a-fA-F]{2})/) &&
+                !!uri.host.try(&.presence) && uri.path.matches?(/\A\/[^\/]+\z/) &&
+                connection_options?(uri, DEPLOYMENT_OPTIONS) &&
+                (sslmode.nil? || %w(disable allow prefer require verify-ca verify-full).includes?(sslmode))
+      rescue URI::Error | ArgumentError
+        valid = false
+      end
+      unless valid
+        raise ArgumentError.new("#{key} must specify a PostgreSQL host and database without connection-target overrides")
+      end
+      return value if sslmode
+      query = uri.not_nil!.query
+      separator = query ? (query.empty? ? "" : "&") : "?"
+      "#{value}#{separator}sslmode=verify-full"
+    end
+
+    private def postgres_connection?(uri : URI) : Bool
+      %w(postgresql postgres).includes?(uri.scheme) && uri.fragment.nil? &&
+        (uri.port.nil? || (1..65535).includes?(uri.port.not_nil!))
+    end
+
+    private def connection_options?(uri : URI, allowed : Array(String)) : Bool
+      query = uri.query || ""
+      return true if query.empty?
+      return false unless query.split('&').all? { |pair| pair.includes?('=') && !/%(?![0-9a-fA-F]{2})/.matches?(pair) }
+
+      names = Set(String).new
+      HTTP::Params.parse(query).each do |name, _|
+        return false unless allowed.includes?(name) && names.add?(name)
+      end
+      true
     end
 
     def connection_environment(environment = ENV.to_h) : Hash(String, String)
@@ -81,12 +127,16 @@ module Runcobo::Tasks
       runner.run("pg_ctl", ["-D", (local / "postgres").to_s, "stop"])
     end
 
-    def migrate(kind : String)
-      Migrations.new(self).run(database_url(kind), "migrate")
+    def migrate(kind : String, options = Migrations::Options.new)
+      Migrations.new(self).run(migration_database_url(kind, "migrate"), "migrate", options)
     end
 
-    def status(kind : String)
-      Migrations.new(self).status(database_url(kind))
+    def status(kind : String, options = Migrations::Options.new)
+      Migrations.new(self).status(migration_database_url(kind, "status"), options)
+    end
+
+    def wait(kind : String, options = Migrations::Options.new)
+      Migrations.new(self).execute(migration_database_url(kind, "wait"), nil, "wait", options)
     end
 
     def console(kind : String)
@@ -117,8 +167,8 @@ module Runcobo::Tasks
       migrate(kind)
     end
 
-    def rollback(kind : String)
-      Migrations.new(self).run(database_url(kind), "rollback")
+    def rollback(kind : String, options = Migrations::Options.new)
+      Migrations.new(self).run(migration_database_url(kind, "rollback"), "rollback", options)
     end
 
     def seed(kind : String)

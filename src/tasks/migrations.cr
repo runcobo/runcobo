@@ -2,6 +2,8 @@ module Runcobo::Tasks
   class Migrations
     TABLE = "schema_migrations"
 
+    record Options, global_args : Array(String) = [] of String, command_args : Array(String) = [] of String
+
     def initialize(@database : Database)
     end
 
@@ -17,19 +19,19 @@ module Runcobo::Tasks
       end
     end
 
-    def run(url : String, operation : String)
+    def run(url : String, operation : String, options = Options.new)
       Runcobo::Tasks.temporary_directory("cobo-migrations-") do |directory|
         files.each { |path| stage(directory, path) }
-        execute(url, directory, operation)
+        execute(url, directory, operation, options)
       end
     end
 
-    def status(url : String)
+    def status(url : String, options = Options.new)
       # dbmate only needs the filenames to compare versions. This also lets
       # developers inspect pending migrations before writing their rollback.
       Runcobo::Tasks.temporary_directory("cobo-status-") do |directory|
         files.each { |path| File.write(directory / path.basename, "") }
-        execute(url, directory, "status")
+        execute(url, directory, "status", options)
       end
     end
 
@@ -49,23 +51,30 @@ module Runcobo::Tasks
       File.write(directory / path.basename, source)
     end
 
-    def execute(url : String, directory : Path, operation : String)
+    def execute(url : String, directory : Path?, operation : String, options = Options.new)
       settings = @database.settings
       environment = @database.connection_environment.reject { |key, _| key.starts_with?("DBMATE_") }
-      uri = URI.parse(url)
-      params = HTTP::Params.parse(uri.query || "")
-      params["sslmode"] = environment["PGSSLMODE"]? || "prefer" unless params.has_key?("sslmode")
-      uri.query = params.to_s
-      environment["DATABASE_URL"] = uri.to_s
+      # Preserve the original encoding of credentials and connection options
+      # when appending a default connection mode for local databases.
+      query = URI.parse(url).query
+      unless HTTP::Params.parse(query || "").has_key?("sslmode")
+        mode = URI.encode_www_form(environment["PGSSLMODE"]? || "prefer")
+        separator = query ? (query.empty? ? "" : "&") : "?"
+        url = "#{url}#{separator}sslmode=#{mode}"
+      end
+      environment["DATABASE_URL"] = url
       dbmate = if executable = Process.executable_path
                  Process.find_executable(File.join(File.dirname(executable), "runcobo-dbmate"))
                end
       begin
-        args = ["--env-file", "/dev/null", "--migrations-dir", directory.to_s,
-                "--migrations-table", TABLE, "--no-dump-schema"]
-        args << "--migration-lock" unless operation == "status"
-        args.concat([operation, "--strict"])
-        @database.runner.run(dbmate || "dbmate", args, chdir: settings.root, env: environment)
+        args = ["--env-file", "/dev/null", "--migrations-table", TABLE, "--no-dump-schema"]
+        args.concat(["--migrations-dir", directory.to_s]) if directory
+        args << "--migration-lock" if operation.in?("migrate", "rollback")
+        args.concat(options.global_args)
+        args << operation
+        args << "--strict" unless operation == "wait"
+        args.concat(options.command_args)
+        @database.runner.run(dbmate || "dbmate", args, chdir: settings.root, env: environment, check: operation != "status")
       rescue error : IO::Error
         raise error if dbmate || Process.find_executable("dbmate", path: environment["PATH"]?, pwd: settings.root)
         raise ArgumentError.new("dbmate was not found. Run make install or install dbmate 2.38.2 or later on PATH")

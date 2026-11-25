@@ -22,7 +22,8 @@ module Runcobo::Cli
     when "routes"
       exit Commands::Routes.run(root, args[1..])
     else
-      Tasks::Command.run(args, root)
+      result = Tasks::Command.run(args, root)
+      exit result.exit_code if result.is_a?(Tasks::Result) && result.exit_code != 0
     end
   end
 end

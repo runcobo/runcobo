@@ -981,8 +981,8 @@ secret_environment: JWT_SECRET
 public_base_environment: PUBLIC_BASE_URL
 ```
 
-The PostgreSQL tools manage only `example_development` and `example_test` on a
-loopback host. They never use `DATABASE_URL` to select a development or test database;
+Local PostgreSQL commands manage only `example_development` and `example_test` on
+a loopback host. They never use `DATABASE_URL` to select a development or test database;
 explicit overrides are `DEVELOPMENT_DATABASE_URL` and `TEST_DATABASE_URL`, validated
 against the same host and database restrictions. The owned cluster, logs and secret
 live under `.local/`; add `/.local/`, `/bin/` and `/db/schema.snapshot.sql` to the
@@ -1039,6 +1039,33 @@ succeed.
 Use `db status` and `db console` with an existing local database. Both default to
 `development` and accept `test`. Status does not apply migrations and reports an
 error when an applied migration file is missing.
+
+Deployment jobs can also run `db status`, `db wait` and `db migrate` against
+`staging` or `production`. These commands use only the corresponding
+`STAGING_DATABASE_URL` or `PRODUCTION_DATABASE_URL` from the job environment.
+Set an explicit PostgreSQL host and database, and supply certificate settings
+as needed. The default `sslmode=verify-full` verifies the server certificate
+and hostname. Use a direct connection or a session-pooling connection for
+the PostgreSQL migration lock. Use the migration files from the release
+being deployed.
+
+```sh
+bin/cobo db status staging
+bin/cobo db migrate staging --wait-timeout 30s
+bin/cobo db status production
+bin/cobo db migrate production --wait --migration-lock-timeout 2m
+```
+
+`db wait` checks server availability. The target database must already exist
+for `status` and `migrate`. `status --exit-code` exits with status 1 when
+migrations are pending. `--quiet` implies `--exit-code` and suppresses status
+output. Use `--verbose` with `migrate` or `rollback` to see individual statement
+results. Each command documents its options with `--help`.
+
+`db rollback staging` reverses the latest applied migration. Use a corrective
+migration to fix a production schema. dbmate 2.38.2 applies all pending
+migrations in order and only rolls back the latest applied migration. These
+commands have no target-version argument.
 
 `cobo test` runs `crystal spec` from the project root with both database connection
 variables set to the validated test database. Use `cobo test --prepare` to ensure
