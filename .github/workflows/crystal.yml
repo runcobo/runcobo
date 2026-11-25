@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, codex/development-foundation, codex/request-validation]
+    branches: [main, codex/development-foundation, codex/request-validation, codex/development-tasks]
   workflow_dispatch:
 
 permissions:

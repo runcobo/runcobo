@@ -3,14 +3,14 @@ require "../../src/tasks"
 
 module TaskSpec
   ROOT = Path[__DIR__].parent.parent
-  alias Call = NamedTuple(command: String, args: Array(String), env: Hash(String, String)?, chdir: Path?, capture: Bool, quiet: Bool, check: Bool)
+  alias Call = NamedTuple(command: String, args: Array(String), env: Hash(String, String)?, chdir: Path?, input: Process::Stdio, capture: Bool, quiet: Bool, check: Bool)
 
   class FakeRunner < Runcobo::Tasks::Runner
     getter calls = [] of Call
     property handler : Proc(Call, Runcobo::Tasks::Result) = ->(call : Call) { Runcobo::Tasks::Result.new(0) }
 
-    def run(command : String, args : Array(String) = [] of String, *, env : Hash(String, String)? = nil, chdir : Path? = nil, capture : Bool = false, quiet : Bool = false, check : Bool = true) : Runcobo::Tasks::Result
-      call = {command: command, args: args, env: env, chdir: chdir, capture: capture, quiet: quiet, check: check}
+    def run(command : String, args : Array(String) = [] of String, *, env : Hash(String, String)? = nil, chdir : Path? = nil, input : Process::Stdio = Process::Redirect::Close, capture : Bool = false, quiet : Bool = false, check : Bool = true) : Runcobo::Tasks::Result
+      call = {command: command, args: args, env: env, chdir: chdir, input: input, capture: capture, quiet: quiet, check: check}
       calls << call
       result = handler.call(call)
       raise Runcobo::Tasks::CommandError.new(command, result.exit_code, result.error) if check && result.exit_code != 0

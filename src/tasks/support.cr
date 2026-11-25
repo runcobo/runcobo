@@ -17,10 +17,10 @@ module Runcobo::Tasks
   record Result, exit_code : Int32, output : String = "", error : String = ""
 
   class Runner
-    def run(command : String, args : Array(String) = [] of String, *, env : Hash(String, String)? = nil, chdir : Path? = nil, capture : Bool = false, quiet : Bool = false, check : Bool = true) : Result
+    def run(command : String, args : Array(String) = [] of String, *, env : Hash(String, String)? = nil, chdir : Path? = nil, input : Process::Stdio = Process::Redirect::Close, capture : Bool = false, quiet : Bool = false, check : Bool = true) : Result
       output = IO::Memory.new
       error = IO::Memory.new
-      status = Process.run(command, args, env: env, clear_env: !env.nil?, chdir: chdir,
+      status = Process.run(command, args, env: env, clear_env: !env.nil?, chdir: chdir, input: input,
         output: capture ? output : quiet ? Process::Redirect::Close : STDOUT,
         error: capture || quiet ? error : STDERR)
       result = Result.new(status.exit_code, output.to_s, error.to_s)

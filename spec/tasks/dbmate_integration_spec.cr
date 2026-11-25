@@ -22,6 +22,12 @@ if integration_url = ENV["RUNCOBO_DBMATE_INTEGRATION_URL"]?
         executable = (TaskSpec::ROOT / "bin/cobo").to_s
 
         File.write(change, "-- migrate:up\n#{up}\n-- migrate:down\nSELECT 1;\n")
+        status = database.runner.run(executable, ["db", "status", "test"], env: env, chdir: root, capture: true)
+        status.output.should contain("[ ] 20261120082720")
+        status.output.should contain("[ ] 20261121082720")
+        console = database.runner.run(executable, ["db", "console", "test"], env: env, chdir: root,
+          input: IO::Memory.new("SELECT current_database();\n"), capture: true)
+        console.output.should contain("runcobo_tasks_test")
         failed = database.runner.run(executable, ["db", "verify"], env: env, chdir: root, capture: true, check: false)
         failed.exit_code.should eq(1)
         failed.error.should contain("Rollback 20261121082720: database schema differs")
